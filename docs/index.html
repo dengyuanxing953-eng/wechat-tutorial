@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>微信聊天记录导出教程 — 让 AI 帮你分析</title>
+<title>微信聊天记录导出教程</title>
 <style>
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -16,6 +16,7 @@
   --text: #f1f5f9;
   --muted: #94a3b8;
   --green: #10b981;
+  --purple: #8b5cf6;
   --radius: 16px;
 }
 
@@ -28,6 +29,32 @@ body {
   font-size: 16px;
   line-height: 1.8;
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* ── Noise overlay ── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 256px 256px;
+}
+
+/* ── Scroll progress bar ── */
+.scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent), #fbbf24);
+  z-index: 10000;
+  width: 0%;
+  transition: width 0.1s linear;
+  box-shadow: 0 0 10px rgba(245,158,11,0.5);
 }
 
 /* ── Hero ── */
@@ -49,15 +76,15 @@ body {
     radial-gradient(ellipse 80% 60% at 50% 0%, rgba(59,130,246,.15) 0%, transparent 60%),
     radial-gradient(ellipse 60% 50% at 80% 20%, rgba(139,92,246,.1) 0%, transparent 50%),
     linear-gradient(180deg, rgba(59,130,246,.08) 0%, var(--bg) 100%);
-  animation: heroShift 12s ease-in-out infinite alternate;
+  animation: heroHue 20s ease-in-out infinite alternate;
 }
 
-@keyframes heroShift {
-  0% { opacity: 1; }
-  100% { opacity: .7; transform: scale(1.05); }
+@keyframes heroHue {
+  0% { filter: hue-rotate(0deg); opacity: 1; }
+  50% { filter: hue-rotate(15deg); opacity: 0.85; }
+  100% { filter: hue-rotate(-10deg); opacity: 1; }
 }
 
-/* grid overlay */
 .hero::after {
   content: '';
   position: absolute;
@@ -67,25 +94,27 @@ body {
     linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);
   background-size: 60px 60px;
   mask-image: radial-gradient(ellipse 70% 70% at 50% 40%, black 20%, transparent 70%);
+  animation: gridDrift 30s linear infinite;
+}
+
+@keyframes gridDrift {
+  0% { transform: translate(0, 0); }
+  100% { transform: translate(60px, 60px); }
 }
 
 /* floating dots */
-.dot {
+.particle {
   position: absolute;
   border-radius: 50%;
-  opacity: .25;
-  animation: float 8s ease-in-out infinite alternate;
+  opacity: 0;
+  animation: particleFloat linear infinite;
 }
-.dot-1 { width: 6px; height: 6px; background: var(--accent); top: 20%; left: 15%; animation-delay: 0s; }
-.dot-2 { width: 4px; height: 4px; background: var(--blue); top: 35%; right: 20%; animation-delay: 2s; }
-.dot-3 { width: 8px; height: 8px; background: #8b5cf6; bottom: 30%; left: 25%; animation-delay: 4s; }
-.dot-4 { width: 5px; height: 5px; background: var(--accent); top: 60%; right: 12%; animation-delay: 1s; }
-.dot-5 { width: 3px; height: 3px; background: var(--blue); top: 15%; right: 30%; animation-delay: 3s; }
-.dot-6 { width: 7px; height: 7px; background: #8b5cf6; bottom: 20%; right: 25%; animation-delay: 5s; }
 
-@keyframes float {
-  0% { transform: translateY(0) translateX(0); }
-  100% { transform: translateY(-30px) translateX(15px); }
+@keyframes particleFloat {
+  0% { opacity: 0; transform: translateY(0) translateX(0); }
+  10% { opacity: 0.4; }
+  90% { opacity: 0.4; }
+  100% { opacity: 0; transform: translateY(-120px) translateX(40px); }
 }
 
 .hero-content {
@@ -121,12 +150,34 @@ body {
   background-clip: text;
 }
 
+.hero-title .cursor {
+  display: inline-block;
+  width: 3px;
+  height: 1em;
+  background: var(--accent);
+  margin-left: 2px;
+  vertical-align: text-bottom;
+  animation: blink 1s step-end infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
 .hero-subtitle {
   font-size: clamp(17px, 2.5vw, 22px);
   color: var(--muted);
   font-weight: 400;
   line-height: 1.6;
   margin-bottom: 40px;
+  opacity: 0;
+  animation: fadeInUp 0.8s ease forwards 1.5s;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .hero-stats {
@@ -134,24 +185,13 @@ body {
   justify-content: center;
   gap: 48px;
   flex-wrap: wrap;
+  opacity: 0;
+  animation: fadeInUp 0.8s ease forwards 2s;
 }
 
-.hero-stat {
-  text-align: center;
-}
-
-.hero-stat-value {
-  display: block;
-  font-size: 32px;
-  font-weight: 700;
-  color: var(--accent);
-}
-
-.hero-stat-label {
-  font-size: 14px;
-  color: var(--muted);
-  font-weight: 400;
-}
+.hero-stat { text-align: center; }
+.hero-stat-value { display: block; font-size: 32px; font-weight: 700; color: var(--accent); }
+.hero-stat-label { font-size: 14px; color: var(--muted); font-weight: 400; }
 
 .scroll-hint {
   position: absolute;
@@ -202,7 +242,7 @@ body {
 /* ── Navigation ── */
 .nav {
   position: fixed;
-  top: 0;
+  top: 3px;
   left: 0;
   right: 0;
   z-index: 100;
@@ -226,39 +266,15 @@ body {
   height: 64px;
 }
 
-.nav-brand {
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--text);
-  text-decoration: none;
-}
+.nav-brand { font-size: 16px; font-weight: 700; color: var(--text); text-decoration: none; }
 
-.nav-links {
-  display: flex;
-  gap: 32px;
-  list-style: none;
-}
-
-.nav-links a {
-  font-size: 14px;
-  color: var(--muted);
-  text-decoration: none;
-  font-weight: 600;
-  transition: color .2s;
-}
-
+.nav-links { display: flex; gap: 32px; list-style: none; }
+.nav-links a { font-size: 14px; color: var(--muted); text-decoration: none; font-weight: 600; transition: color .2s; }
 .nav-links a:hover { color: var(--text); }
 
 /* ── Sections ── */
-.container {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 0 24px;
-}
-
-section {
-  padding: 100px 0;
-}
+.container { max-width: 800px; margin: 0 auto; padding: 0 24px; }
+section { padding: 100px 0; }
 
 .section-label {
   display: inline-flex;
@@ -295,63 +311,188 @@ section {
   margin-bottom: 48px;
 }
 
+/* ── Scroll animations ── */
+.slide-in {
+  opacity: 0;
+  transform: translateX(-40px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.slide-in.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
 /* ── Cards ── */
 .card {
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 32px;
-  transition: transform .25s, box-shadow .25s;
+  transition: transform .3s ease, box-shadow .3s ease, border-color .3s ease;
 }
 
 .card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 20px 40px rgba(0,0,0,.3);
+  transform: translateY(-4px);
+  box-shadow: 0 20px 50px rgba(0,0,0,.4);
+  border-color: rgba(245,158,11,.25);
 }
 
+/* ── Tool Download Cards ── */
 .tool-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 20px;
+  gap: 24px;
 }
 
-.tool-card {
-  background: rgba(17,24,39,.6);
+.tool-download-card {
+  background: rgba(17,24,39,.7);
   backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 28px;
-  transition: transform .25s, box-shadow .25s, border-color .25s;
+  padding: 32px 28px;
+  text-decoration: none;
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  transition: transform .3s ease, box-shadow .3s ease, border-color .3s ease;
+  position: relative;
+  overflow: hidden;
 }
 
-.tool-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 16px 48px rgba(0,0,0,.4);
-  border-color: rgba(245,158,11,.2);
+.tool-download-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius);
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
-.tool-card-name {
-  font-size: 18px;
+.tool-download-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 24px 60px rgba(0,0,0,.5);
+  border-color: rgba(245,158,11,.3);
+}
+
+.tool-download-card:hover::before {
+  opacity: 1;
+}
+
+.tool-download-card.amber::before { background: radial-gradient(ellipse at center, rgba(245,158,11,.06) 0%, transparent 70%); }
+.tool-download-card.blue::before { background: radial-gradient(ellipse at center, rgba(59,130,246,.06) 0%, transparent 70%); }
+
+.tool-version {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .05em;
+  margin-bottom: 16px;
+}
+
+.tool-download-card.amber .tool-version {
+  background: rgba(245,158,11,.12);
+  color: var(--accent);
+  border: 1px solid rgba(245,158,11,.2);
+}
+
+.tool-download-card.blue .tool-version {
+  background: rgba(59,130,246,.12);
+  color: var(--blue);
+  border: 1px solid rgba(59,130,246,.2);
+}
+
+.tool-icon {
+  width: 56px;
+  height: 56px;
+  margin-bottom: 16px;
+}
+
+.tool-download-card.amber .tool-icon { color: var(--accent); }
+.tool-download-card.blue .tool-icon { color: var(--blue); }
+
+.tool-name {
+  font-size: 20px;
   font-weight: 700;
   margin-bottom: 8px;
 }
 
-.tool-card-desc {
+.tool-desc {
   font-size: 14px;
   color: var(--muted);
   line-height: 1.6;
+  margin-bottom: 16px;
 }
 
-.tool-card-tag {
-  display: inline-block;
-  margin-top: 12px;
+.tool-size {
   font-size: 12px;
-  font-weight: 600;
-  padding: 4px 10px;
-  border-radius: 6px;
-  background: rgba(59,130,246,.12);
-  color: var(--blue);
+  color: var(--muted);
+  opacity: 0.7;
+  margin-bottom: 16px;
+}
+
+.tool-download-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 28px;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  border: none;
+  transition: all 0.3s ease;
+  font-family: inherit;
+  animation: pulseGlow 2.5s ease-in-out infinite;
+}
+
+.tool-download-card.amber .tool-download-btn {
+  background: linear-gradient(135deg, var(--accent), #d97706);
+  color: #0a0f1a;
+}
+
+.tool-download-card.blue .tool-download-btn {
+  background: linear-gradient(135deg, var(--blue), #2563eb);
+  color: #fff;
+}
+
+.tool-download-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(245,158,11,0.4); }
+  50% { box-shadow: 0 0 20px 4px rgba(245,158,11,0.15); }
+}
+
+.tool-download-card.blue .tool-download-btn {
+  animation-name: pulseGlowBlue;
+}
+
+@keyframes pulseGlowBlue {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(59,130,246,0.4); }
+  50% { box-shadow: 0 0 20px 4px rgba(59,130,246,0.15); }
+}
+
+.tool-float {
+  animation: toolFloat 4s ease-in-out infinite;
+}
+
+.tool-download-card:nth-child(2).tool-float {
+  animation-delay: 1s;
+}
+
+@keyframes toolFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+.tool-download-card:hover {
+  animation: none;
 }
 
 /* ── Steps ── */
@@ -369,12 +510,13 @@ section {
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 28px;
-  transition: transform .25s, box-shadow .25s;
+  transition: transform .25s, box-shadow .25s, border-color .25s;
 }
 
 .step:hover {
   transform: translateX(4px);
   box-shadow: 0 12px 32px rgba(0,0,0,.25);
+  border-color: rgba(245,158,11,.15);
 }
 
 .step-num {
@@ -391,6 +533,17 @@ section {
   color: var(--accent);
   border: 1px solid rgba(245,158,11,.2);
   position: relative;
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+}
+
+.step-num.animate-glow {
+  animation: stepGlow 1s ease forwards;
+}
+
+@keyframes stepGlow {
+  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(245,158,11,0); }
+  50% { transform: scale(1.15); box-shadow: 0 0 24px 6px rgba(245,158,11,0.25); }
+  100% { transform: scale(1); box-shadow: 0 0 8px 2px rgba(245,158,11,0.1); }
 }
 
 .step-num::after {
@@ -401,23 +554,9 @@ section {
   background: radial-gradient(circle, rgba(245,158,11,.12) 0%, transparent 70%);
 }
 
-.step-content {
-  flex: 1;
-  min-width: 0;
-}
-
-.step-title {
-  font-size: 17px;
-  font-weight: 700;
-  margin-bottom: 6px;
-}
-
-.step-text {
-  font-size: 15px;
-  color: var(--muted);
-  line-height: 1.7;
-}
-
+.step-content { flex: 1; min-width: 0; }
+.step-title { font-size: 17px; font-weight: 700; margin-bottom: 6px; }
+.step-text { font-size: 15px; color: var(--muted); line-height: 1.7; }
 .step-text code {
   background: rgba(59,130,246,.1);
   color: var(--blue);
@@ -441,50 +580,105 @@ section {
   border-radius: 12px;
   padding: 20px;
   text-align: center;
-  transition: transform .25s, border-color .25s;
+  transition: transform .25s, border-color .25s, box-shadow .25s;
 }
 
 .ai-card:hover {
   transform: translateY(-2px);
   border-color: rgba(245,158,11,.2);
+  box-shadow: 0 8px 24px rgba(0,0,0,.2);
 }
 
-.ai-card-name {
+.ai-card-name { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+.ai-card-url { font-size: 13px; color: var(--muted); }
+
+/* ── Prompt Section ── */
+.prompt-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.prompt-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  transition: transform .3s ease, box-shadow .3s ease, border-color .3s ease;
+}
+
+.prompt-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 48px rgba(0,0,0,.35);
+}
+
+.prompt-card.amber { border-left: 3px solid var(--accent); }
+.prompt-card.amber:hover { border-color: rgba(245,158,11,.3); border-left-color: var(--accent); }
+.prompt-card.blue { border-left: 3px solid var(--blue); }
+.prompt-card.blue:hover { border-color: rgba(59,130,246,.3); border-left-color: var(--blue); }
+.prompt-card.green { border-left: 3px solid var(--green); }
+.prompt-card.green:hover { border-color: rgba(16,185,129,.3); border-left-color: var(--green); }
+.prompt-card.purple { border-left: 3px solid var(--purple); }
+.prompt-card.purple:hover { border-color: rgba(139,92,246,.3); border-left-color: var(--purple); }
+
+.prompt-card-header {
+  padding: 20px 20px 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.prompt-card-title {
   font-size: 16px;
   font-weight: 700;
   margin-bottom: 4px;
 }
 
-.ai-card-url {
+.prompt-card-desc {
   font-size: 13px;
   color: var(--muted);
 }
 
-/* ── Prompt Box ── */
-.prompt-box {
-  position: relative;
-  background: #0d1117;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
+.prompt-card-body {
+  padding: 16px 20px;
+}
+
+.prompt-preview {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.6;
+  margin-bottom: 12px;
   overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
 }
 
-.prompt-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 20px;
-  border-bottom: 1px solid var(--border);
-  background: rgba(255,255,255,.02);
-}
-
-.prompt-header-title {
+.prompt-full {
+  display: none;
   font-size: 13px;
-  font-weight: 600;
-  color: var(--muted);
+  color: var(--text);
+  line-height: 1.8;
+  background: #0d1117;
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 12px;
+  white-space: pre-wrap;
+  font-family: "SF Mono", "Fira Code", "PingFang SC", monospace;
+  border: 1px solid var(--border);
 }
 
-.copy-btn {
+.prompt-full.expanded {
+  display: block;
+}
+
+.prompt-card-actions {
+  padding: 0 20px 20px;
+  display: flex;
+  gap: 8px;
+}
+
+.prompt-toggle-btn {
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -500,28 +694,51 @@ section {
   font-family: inherit;
 }
 
-.copy-btn:hover {
-  background: rgba(255,255,255,.05);
-  color: var(--text);
+.prompt-toggle-btn:hover {
   border-color: rgba(255,255,255,.15);
+  color: var(--text);
 }
 
-.copy-btn.copied {
+.prompt-toggle-btn svg {
+  width: 14px;
+  height: 14px;
+  transition: transform 0.3s ease;
+}
+
+.prompt-toggle-btn.open svg {
+  transform: rotate(180deg);
+}
+
+.prompt-copy-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--accent);
+  background: rgba(245,158,11,.1);
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .2s;
+  font-family: inherit;
+}
+
+.prompt-copy-btn:hover {
+  background: rgba(245,158,11,.2);
+}
+
+.prompt-copy-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
+.prompt-copy-btn.copied {
+  border-color: var(--green);
+  background: rgba(16,185,129,.1);
   color: var(--green);
-  border-color: rgba(16,185,129,.3);
 }
-
-.prompt-body {
-  padding: 20px;
-  font-size: 14px;
-  line-height: 1.8;
-  color: var(--muted);
-  white-space: pre-wrap;
-}
-
-.prompt-body .hl-keyword { color: var(--accent); }
-.prompt-body .hl-string { color: var(--green); }
-.prompt-body .hl-comment { color: #64748b; }
 
 /* ── FAQ ── */
 .faq-list {
@@ -531,406 +748,433 @@ section {
 }
 
 .faq-item {
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  overflow: hidden;
   background: var(--card);
-  transition: border-color .25s;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  transition: border-color .3s;
 }
 
 .faq-item:hover {
   border-color: rgba(245,158,11,.15);
 }
 
-.faq-q {
-  width: 100%;
+.faq-question {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 20px 24px;
-  background: transparent;
-  border: none;
-  color: var(--text);
+  cursor: pointer;
   font-size: 16px;
   font-weight: 600;
-  cursor: pointer;
-  text-align: left;
-  font-family: inherit;
-  transition: background .2s;
+  transition: color .2s;
+  user-select: none;
 }
 
-.faq-q:hover { background: rgba(255,255,255,.02); }
+.faq-question:hover { color: var(--accent); }
 
 .faq-chevron {
-  flex-shrink: 0;
   width: 20px;
   height: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: transform .3s;
   color: var(--muted);
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  flex-shrink: 0;
 }
 
-.faq-item.open .faq-chevron { transform: rotate(180deg); }
-
-.faq-a-wrap {
-  display: grid;
-  grid-template-rows: 0fr;
-  transition: grid-template-rows .35s ease;
+.faq-item.open .faq-chevron {
+  transform: rotate(180deg);
+  color: var(--accent);
 }
 
-.faq-item.open .faq-a-wrap {
-  grid-template-rows: 1fr;
-}
-
-.faq-a {
+.faq-answer {
+  max-height: 0;
   overflow: hidden;
-}
-
-.faq-a-inner {
-  padding: 0 24px 20px;
+  transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), padding 0.3s ease;
+  padding: 0 24px;
   font-size: 15px;
   color: var(--muted);
-  line-height: 1.7;
+  line-height: 1.8;
+}
+
+.faq-item.open .faq-answer {
+  max-height: 400px;
+  padding: 0 24px 20px;
 }
 
 /* ── Footer ── */
 .footer {
   border-top: 1px solid var(--border);
-  padding: 48px 0;
+  padding: 40px 24px;
   text-align: center;
   color: var(--muted);
   font-size: 14px;
 }
 
-/* ── Back to Top ── */
-.back-top {
-  position: fixed;
-  bottom: 32px;
-  right: 32px;
-  z-index: 50;
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  background: var(--card);
-  border: 1px solid var(--border);
-  color: var(--muted);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  opacity: 0;
-  pointer-events: none;
-  transition: all .3s;
-  font-size: 18px;
-}
-
-.back-top.show {
-  opacity: 1;
-  pointer-events: auto;
-}
-
-.back-top:hover {
-  background: rgba(245,158,11,.1);
-  color: var(--accent);
-  border-color: rgba(245,158,11,.3);
-  transform: translateY(-2px);
-}
-
-/* ── Animations ── */
-.fade-in {
-  opacity: 0;
-  transform: translateY(24px);
-  transition: opacity .7s ease, transform .7s ease;
-}
-
-.fade-in.visible {
-  opacity: 1;
-  transform: translateY(0);
-}
+.footer-text { margin-bottom: 8px; }
+.footer-update { font-size: 12px; opacity: 0.6; }
 
 /* ── Responsive ── */
-@media (max-width: 640px) {
-  section { padding: 64px 0; }
+@media (max-width: 768px) {
   .tool-grid { grid-template-columns: 1fr; }
+  .prompt-grid { grid-template-columns: 1fr; }
   .ai-grid { grid-template-columns: 1fr; }
-  .hero { min-height: 90vh; }
-  .hero-stats { gap: 32px; }
-  .step { flex-direction: column; gap: 12px; }
+  .hero-stats { gap: 24px; }
+  .hero-stat-value { font-size: 24px; }
+  section { padding: 60px 0; }
   .nav-links { gap: 16px; }
-  .nav-links a { font-size: 13px; }
-  .card { padding: 24px; }
-  .step { padding: 24px; }
-  .hero-stat-value { font-size: 26px; }
+  .nav-links a { font-size: 12px; }
+  .step { padding: 20px; }
+  .step-num { width: 40px; height: 40px; font-size: 16px; }
+  .tool-download-card { padding: 24px 20px; }
 }
 
-@media (max-width: 400px) {
-  .hero-stats { gap: 24px; }
+@media (max-width: 480px) {
   .nav-links { display: none; }
+  .hero-title { font-size: 28px; }
+  .hero-subtitle { font-size: 15px; }
 }
 </style>
 </head>
 <body>
 
+<!-- Scroll Progress Bar -->
+<div class="scroll-progress" id="scrollProgress"></div>
+
 <!-- Navigation -->
 <nav class="nav" id="nav">
   <div class="nav-inner">
-    <a href="#" class="nav-brand">微信导出教程</a>
+    <a href="#" class="nav-brand">微信聊天导出</a>
     <ul class="nav-links">
-      <li><a href="#tools">工具</a></li>
-      <li><a href="#steps1">提取</a></li>
-      <li><a href="#steps2">导出</a></li>
-      <li><a href="#ai">分析</a></li>
-      <li><a href="#faq">FAQ</a></li>
+      <li><a href="#tools">工具下载</a></li>
+      <li><a href="#steps">操作步骤</a></li>
+      <li><a href="#prompts">AI 提示词</a></li>
+      <li><a href="#faq">常见问题</a></li>
     </ul>
   </div>
 </nav>
 
 <!-- Hero -->
-<section class="hero">
-  <div class="dot dot-1"></div>
-  <div class="dot dot-2"></div>
-  <div class="dot dot-3"></div>
-  <div class="dot dot-4"></div>
-  <div class="dot dot-5"></div>
-  <div class="dot dot-6"></div>
-  <div class="hero-content fade-in">
-    <div class="hero-badge">简易教程</div>
-    <h1 class="hero-title">微信聊天记录导出教程</h1>
-    <p class="hero-subtitle">三步搞定，让 AI 帮你分析聊天记录</p>
+<section class="hero" id="hero">
+  <div class="hero-content">
+    <div class="hero-badge">教程指南</div>
+    <h1 class="hero-title" id="heroTitle"><span class="cursor"></span></h1>
+    <p class="hero-subtitle">三步导出，让 AI 帮你认识真实的自己</p>
     <div class="hero-stats">
       <div class="hero-stat">
         <span class="hero-stat-value">3</span>
-        <span class="hero-stat-label">步完成</span>
+        <span class="hero-stat-label">简单步骤</span>
       </div>
       <div class="hero-stat">
-        <span class="hero-stat-value">~8</span>
-        <span class="hero-stat-label">分钟</span>
+        <span class="hero-stat-value">100%</span>
+        <span class="hero-stat-label">本地处理</span>
       </div>
       <div class="hero-stat">
         <span class="hero-stat-value">0</span>
-        <span class="hero-stat-label">代码基础</span>
+        <span class="hero-stat-label">技术门槛</span>
       </div>
     </div>
   </div>
   <div class="scroll-hint">
     <span></span>
-    向下滚动
+    <span>向下滚动</span>
   </div>
 </section>
 
-<!-- Section 1: 准备工具 -->
+<!-- Tools Section -->
 <section id="tools">
   <div class="container">
-    <div class="fade-in">
-      <div class="section-label">第一步</div>
-      <h2 class="section-title">准备工具</h2>
-      <p class="section-desc">只需两个免费工具，百度搜索即可下载，无需注册。</p>
-    </div>
-    <div class="tool-grid fade-in">
-      <div class="tool-card">
-        <div class="tool-card-name">wx_key</div>
-        <div class="tool-card-desc">用于提取微信密钥，是解密数据库的第一步。支持 Windows 7/10/11。</div>
-        <div class="tool-card-tag">必需</div>
-      </div>
-      <div class="tool-card">
-        <div class="tool-card-name">WeChatDataAnalysis</div>
-        <div class="tool-card-desc">解密并导出聊天记录为文本文件，界面简洁，一键操作。</div>
-        <div class="tool-card-tag">必需</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- Section 2: 提取密钥 -->
-<section id="steps1">
-  <div class="container">
-    <div class="fade-in">
-      <div class="section-label">第二步</div>
-      <h2 class="section-title">提取密钥</h2>
-      <p class="section-desc">用 wx_key 获取微信数据库密钥，约 3 分钟。</p>
-    </div>
-    <div class="steps fade-in">
-      <div class="step">
-        <div class="step-num">1</div>
-        <div class="step-content">
-          <div class="step-title">打开微信 PC 版</div>
-          <div class="step-text">登录微信并保持在前台运行，确保已登录状态。</div>
+    <div class="section-label slide-in">第一步</div>
+    <h2 class="section-title slide-in">下载解密工具</h2>
+    <p class="section-desc slide-in">这两款工具可以帮助你解密和导出微信本地数据库，完全离线运行，无需联网。</p>
+    <div class="tool-grid">
+      <a href="https://github.com/ycccccccy/wx_key/releases/download/v2.1.8/wx_key-windows-v2.1.8.zip" class="tool-download-card amber tool-float" target="_blank" rel="noopener">
+        <div class="tool-version">v2.1.8</div>
+        <div class="tool-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+            <line x1="9" y1="3" x2="9" y2="21"></line>
+            <line x1="15" y1="3" x2="15" y2="21"></line>
+            <line x1="3" y1="9" x2="21" y2="9"></line>
+            <line x1="3" y1="15" x2="21" y2="15"></line>
+          </svg>
         </div>
-      </div>
-      <div class="step">
-        <div class="step-num">2</div>
-        <div class="step-content">
-          <div class="step-title">运行 wx_key</div>
-          <div class="step-text">以管理员身份运行 <code>wx_key.exe</code>，程序会自动检测微信进程。</div>
+        <div class="tool-name">wx_key</div>
+        <div class="tool-desc">获取微信数据库密钥，解密本地存储的聊天数据</div>
+        <div class="tool-size">约 18MB / ZIP 压缩包</div>
+        <div class="tool-download-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          点击下载
         </div>
-      </div>
-      <div class="step">
-        <div class="step-num">3</div>
-        <div class="step-content">
-          <div class="step-title">获取密钥</div>
-          <div class="step-text">等待几秒，程序会显示一串密钥（Key），复制保存备用。</div>
+      </a>
+      <a href="https://github.com/LifeArchiveProject/WeChatDataAnalysis/releases/download/v1.8.1/WeChatDataAnalysis-1.8.1-Setup.exe" class="tool-download-card blue tool-float" target="_blank" rel="noopener">
+        <div class="tool-version">v1.8.1</div>
+        <div class="tool-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+          </svg>
         </div>
-      </div>
-      <div class="step">
-        <div class="step-num">4</div>
-        <div class="step-content">
-          <div class="step-title">确认成功</div>
-          <div class="step-text">看到类似 <code>key=xxxxxxxx</code> 的输出即表示成功，将密钥复制保存。</div>
+        <div class="tool-name">WeChatDataAnalysis</div>
+        <div class="tool-desc">一键导出聊天记录为可读文本，支持按联系人分类</div>
+        <div class="tool-size">约 68MB / EXE 安装包</div>
+        <div class="tool-download-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          点击下载
         </div>
-      </div>
+      </a>
     </div>
   </div>
 </section>
 
-<!-- Section 3: 解密导出 -->
-<section id="steps2">
+<!-- Steps Section -->
+<section id="steps">
   <div class="container">
-    <div class="fade-in">
-      <div class="section-label">第三步</div>
-      <h2 class="section-title">解密导出</h2>
-      <p class="section-desc">使用 WeChatDataAnalysis 解密数据库并导出，约 5 分钟。</p>
-    </div>
-    <div class="steps fade-in">
-      <div class="step">
-        <div class="step-num">1</div>
+    <div class="section-label slide-in">操作步骤</div>
+    <h2 class="section-title slide-in">三步导出聊天记录</h2>
+    <p class="section-desc slide-in">跟着以下步骤操作，几分钟即可完成导出。</p>
+    <div class="steps">
+      <div class="step slide-in">
+        <div class="step-num" data-step>1</div>
         <div class="step-content">
-          <div class="step-title">打开 WeChatDataAnalysis</div>
-          <div class="step-text">双击运行，界面会显示两个输入框和一些选项。</div>
+          <div class="step-title">获取微信数据库密钥</div>
+          <div class="step-text">
+            退出微信电脑端，运行 <code>wx_key</code>，点击「Start」按钮。等待几秒后，工具会显示微信数据库的密钥。将密钥复制保存备用。
+          </div>
         </div>
       </div>
-      <div class="step">
-        <div class="step-num">2</div>
+      <div class="step slide-in">
+        <div class="step-num" data-step>2</div>
         <div class="step-content">
-          <div class="step-title">选择数据库路径</div>
-          <div class="step-text">点击"浏览"按钮，找到微信数据目录下的 <code>MSG0.db</code> 或 <code>MicroMsg.db</code> 文件。</div>
+          <div class="step-title">定位微信数据库文件</div>
+          <div class="step-text">
+            打开文件资源管理器，在地址栏输入 <code>%APPDATA%\Tencent\WeChat</code>，找到 <code>Msg</code> 文件夹下的 <code>MicroMsg.db</code> 文件，这就是你的微信聊天数据库。
+          </div>
         </div>
       </div>
-      <div class="step">
-        <div class="step-num">3</div>
+      <div class="step slide-in">
+        <div class="step-num" data-step>3</div>
         <div class="step-content">
-          <div class="step-title">输入密钥</div>
-          <div class="step-text">将之前复制的密钥粘贴到 Key 输入框中。</div>
-        </div>
-      </div>
-      <div class="step">
-        <div class="step-num">4</div>
-        <div class="step-content">
-          <div class="step-title">点击解密</div>
-          <div class="step-text">点击"解密"按钮，等待处理完成。</div>
-        </div>
-      </div>
-      <div class="step">
-        <div class="step-num">5</div>
-        <div class="step-content">
-          <div class="step-title">导出为文本</div>
-          <div class="step-text">解密成功后，选择目标联系人，点击"导出"保存为 TXT 文件。</div>
+          <div class="step-title">导出并分析聊天记录</div>
+          <div class="step-text">
+            打开 <code>WeChatDataAnalysis</code>，导入数据库文件并输入密钥，即可一键导出聊天记录。导出的文本文件可直接上传给 AI 进行分析。
+          </div>
         </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- Section 4: AI 分析 -->
-<section id="ai">
+<!-- AI Tools Section -->
+<section id="ai-tools">
   <div class="container">
-    <div class="fade-in">
-      <div class="section-label">AI 分析</div>
-      <h2 class="section-title">用 AI 分析聊天记录</h2>
-      <p class="section-desc">将导出的文本发送给国内 AI 平台，获得智能分析。</p>
-    </div>
-    <div class="ai-grid fade-in">
+    <div class="section-label slide-in">推荐 AI 工具</div>
+    <h2 class="section-title slide-in">用 AI 分析你的聊天记录</h2>
+    <p class="section-desc slide-in">将导出的聊天记录上传到以下 AI 平台，配合下方的提示词，深度了解真实的自己。</p>
+    <div class="ai-grid slide-in">
       <div class="ai-card">
-        <div class="ai-card-name">豆包</div>
-        <div class="ai-card-url">doubao.com</div>
+        <div class="ai-card-name">ChatGPT</div>
+        <div class="ai-card-url">chat.openai.com</div>
+      </div>
+      <div class="ai-card">
+        <div class="ai-card-name">Claude</div>
+        <div class="ai-card-url">claude.ai</div>
       </div>
       <div class="ai-card">
         <div class="ai-card-name">Kimi</div>
         <div class="ai-card-url">kimi.moonshot.cn</div>
       </div>
       <div class="ai-card">
-        <div class="ai-card-name">通义千问</div>
-        <div class="ai-card-url">tongyi.aliyun.com</div>
+        <div class="ai-card-name">DeepSeek</div>
+        <div class="ai-card-url">chat.deepseek.com</div>
       </div>
-      <div class="ai-card">
-        <div class="ai-card-name">腾讯元宝</div>
-        <div class="ai-card-url">yuanbao.tencent.com</div>
-      </div>
-    </div>
-    <div class="prompt-box fade-in">
-      <div class="prompt-header">
-        <span class="prompt-header-title">示例提示词</span>
-        <button class="copy-btn" id="copyBtn" onclick="copyPrompt()">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-          复制
-        </button>
-      </div>
-      <div class="prompt-body" id="promptText">以下是我和某人的微信聊天记录，请帮我分析：
-
-1. 聊天的主题和主要话题
-2. 对方的性格特点
-3. 双方的关系状态
-4. 对方对我的态度和情感
-5. 需要注意的细节或关键信息
-
-请用条理清晰的方式给出分析结果。</div>
     </div>
   </div>
 </section>
 
-<!-- Section 5: FAQ -->
+<!-- Prompts Section -->
+<section id="prompts">
+  <div class="container">
+    <div class="section-label slide-in">AI 提示词</div>
+    <h2 class="section-title slide-in">自我分析提示词</h2>
+    <p class="section-desc slide-in">选择一个提示词，复制后上传聊天记录文件，让 AI 帮你深度了解自己。每次只用一个提示词效果最好。</p>
+    <div class="prompt-grid">
+
+      <!-- Prompt 1: 人格分析 -->
+      <div class="prompt-card amber slide-in">
+        <div class="prompt-card-header">
+          <div>
+            <div class="prompt-card-title">人格分析</div>
+            <div class="prompt-card-desc">从心理学角度深度了解自己的性格特征</div>
+          </div>
+        </div>
+        <div class="prompt-card-body">
+          <div class="prompt-preview">以下是我的微信聊天记录导出文件。请从心理学角度深度分析"我"的性格特征：1. MBTI 类型倾向及依据...</div>
+          <div class="prompt-full" id="prompt1">以下是我的微信聊天记录导出文件。请从心理学角度深度分析"我"的性格特征：
+1. MBTI 类型倾向及依据
+2. 说话风格和语言习惯
+3. 情绪模式（容易焦虑/淡定/敏感等）
+4. 社交风格（主动型/被动型，深度社交/广度社交）
+5. 核心价值观和人生优先级
+6. 潜意识里反复出现的主题
+请用具体聊天片段作为证据，给出详细分析。</div>
+        </div>
+        <div class="prompt-card-actions">
+          <button class="prompt-toggle-btn" onclick="togglePrompt(this, 'prompt1')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            展开全文
+          </button>
+          <button class="prompt-copy-btn" onclick="copyPrompt(this, 'prompt1')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+            复制提示词
+          </button>
+        </div>
+      </div>
+
+      <!-- Prompt 2: 人际关系 -->
+      <div class="prompt-card blue slide-in">
+        <div class="prompt-card-header">
+          <div>
+            <div class="prompt-card-title">人际关系</div>
+            <div class="prompt-card-desc">分析自己在不同关系中的表现模式</div>
+          </div>
+        </div>
+        <div class="prompt-card-body">
+          <div class="prompt-preview">以下是我的微信聊天记录。请分析我的人际关系模式：1. 我最亲密的 3-5 个人是谁？...</div>
+          <div class="prompt-full" id="prompt2">以下是我的微信聊天记录。请分析我的人际关系模式：
+1. 我最亲密的 3-5 个人是谁？依据是什么？
+2. 我在不同关系中的表现差异（朋友/家人/同事/恋人）
+3. 我的社交圈层结构（核心圈/活跃圈/边缘圈）
+4. 我是否有讨好型人格倾向？具体表现？
+5. 我在冲突中通常怎么处理？
+6. 有哪些关系可能需要主动维护或修复？
+请结合具体聊天内容分析。</div>
+        </div>
+        <div class="prompt-card-actions">
+          <button class="prompt-toggle-btn" onclick="togglePrompt(this, 'prompt2')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            展开全文
+          </button>
+          <button class="prompt-copy-btn" onclick="copyPrompt(this, 'prompt2')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+            复制提示词
+          </button>
+        </div>
+      </div>
+
+      <!-- Prompt 3: 生活状态 -->
+      <div class="prompt-card green slide-in">
+        <div class="prompt-card-header">
+          <div>
+            <div class="prompt-card-title">生活状态</div>
+            <div class="prompt-card-desc">梳理自己的日常作息和生活模式</div>
+          </div>
+        </div>
+        <div class="prompt-card-body">
+          <div class="prompt-preview">以下是我近期的微信聊天记录。请帮我梳理当前的生活状态：1. 我的日常作息规律...</div>
+          <div class="prompt-full" id="prompt3">以下是我近期的微信聊天记录。请帮我梳理当前的生活状态：
+1. 我的日常作息规律（从消息时间推断）
+2. 我最近关注和讨论最多的话题
+3. 我的情绪状态趋势（最近一周/一个月）
+4. 我的工作/学习状态
+5. 我的消费习惯和经济状况暗示
+6. 有什么我可能没意识到的生活模式？
+请用时间线和数据支撑分析。</div>
+        </div>
+        <div class="prompt-card-actions">
+          <button class="prompt-toggle-btn" onclick="togglePrompt(this, 'prompt3')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            展开全文
+          </button>
+          <button class="prompt-copy-btn" onclick="copyPrompt(this, 'prompt3')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+            复制提示词
+          </button>
+        </div>
+      </div>
+
+      <!-- Prompt 4: 成长建议 -->
+      <div class="prompt-card purple slide-in">
+        <div class="prompt-card-header">
+          <div>
+            <div class="prompt-card-title">成长建议</div>
+            <div class="prompt-card-desc">基于真实沟通数据获得个性化提升方案</div>
+          </div>
+        </div>
+        <div class="prompt-card-body">
+          <div class="prompt-preview">以下是我全部的微信聊天记录。请基于我的真实沟通数据，给我个性化成长建议...</div>
+          <div class="prompt-full" id="prompt4">以下是我全部的微信聊天记录。请基于我的真实沟通数据，给我个性化成长建议：
+1. 我沟通中最大的 3 个优势
+2. 我沟通中最大的 3 个盲区或弱点
+3. 我可能没注意到的沟通坏习惯
+4. 我在情绪管理方面可以改进的地方
+5. 基于我的聊天模式，推荐 3 本适合我的书
+6. 给我一个 30 天的个人提升计划
+请严格基于聊天记录内容分析，不要泛泛而谈。</div>
+        </div>
+        <div class="prompt-card-actions">
+          <button class="prompt-toggle-btn" onclick="togglePrompt(this, 'prompt4')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            展开全文
+          </button>
+          <button class="prompt-copy-btn" onclick="copyPrompt(this, 'prompt4')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+            复制提示词
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- FAQ Section -->
 <section id="faq">
   <div class="container">
-    <div class="fade-in">
-      <div class="section-label">帮助</div>
-      <h2 class="section-title">常见问题</h2>
-      <p class="section-desc">遇到问题？这里可能有你要的答案。</p>
-    </div>
-    <div class="faq-list fade-in">
+    <div class="section-label slide-in">常见问题</div>
+    <h2 class="section-title slide-in">你可能想知道</h2>
+    <p class="section-desc slide-in">以下是用户最常问的问题。</p>
+    <div class="faq-list slide-in">
       <div class="faq-item">
-        <button class="faq-q" onclick="toggleFaq(this)">
-          提取密钥时提示错误怎么办？
-          <span class="faq-chevron"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
-        </button>
-        <div class="faq-a-wrap">
-          <div class="faq-a">
-            <div class="faq-a-inner">请确保微信 PC 版已登录并保持运行，同时以管理员身份运行 wx_key。如果仍然失败，尝试关闭微信后重新登录再操作。</div>
-          </div>
+        <div class="faq-question" onclick="toggleFaq(this)">
+          这个方法安全吗？会不会泄露隐私？
+          <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
         </div>
+        <div class="faq-answer">所有操作都在你自己的电脑上完成，数据不会上传到任何第三方服务器。导出的文件也仅保存在本地，你可以随时删除。</div>
       </div>
       <div class="faq-item">
-        <button class="faq-q" onclick="toggleFaq(this)">
-          导出的文件在哪里？
-          <span class="faq-chevron"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
-        </button>
-        <div class="faq-a-wrap">
-          <div class="faq-a">
-            <div class="faq-a-inner">默认保存在 WeChatDataAnalysis 同目录下的 <code>output</code> 文件夹中，也可在导出时自定义保存位置。</div>
-          </div>
+        <div class="faq-question" onclick="toggleFaq(this)">
+          只能导出电脑端的聊天记录吗？
+          <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
         </div>
+        <div class="faq-answer">是的，目前只支持导出电脑端（PC/Mac）的聊天记录。如果你需要导出手机端的记录，可以先将手机聊天记录迁移到电脑端，然后再使用本方法。</div>
       </div>
       <div class="faq-item">
-        <button class="faq-q" onclick="toggleFaq(this)">
-          AI 分析需要付费吗？
-          <span class="faq-chevron"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
-        </button>
-        <div class="faq-a-wrap">
-          <div class="faq-a">
-            <div class="faq-a-inner">推荐的 AI 平台均提供免费额度，日常使用完全够用。如果聊天记录很长，建议分段发送给 AI 分析。</div>
-          </div>
+        <div class="faq-question" onclick="toggleFaq(this)">
+          导出的文件格式是什么？AI 能直接读取吗？
+          <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
         </div>
+        <div class="faq-answer">导出的是纯文本（TXT）文件，AI 可以直接读取和分析。如果文件过大，可以按联系人或时间段分别导出，分批上传给 AI。</div>
       </div>
       <div class="faq-item">
-        <button class="faq-q" onclick="toggleFaq(this)">
-          可以导出图片和语音吗？
-          <span class="faq-chevron"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
-        </button>
-        <div class="faq-a-wrap">
-          <div class="faq-a">
-            <div class="faq-a-inner">本教程导出的是文字记录。图片和语音需要使用其他专用工具提取，不在本教程范围内。</div>
-          </div>
+        <div class="faq-question" onclick="toggleFaq(this)">
+          微信更新后还能用吗？
+          <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
         </div>
+        <div class="faq-answer">微信大版本更新后，密钥获取方式可能会变化。建议在微信更新前先导出备份。工具也会持续更新以适配新版本。</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(this)">
+          Mac 用户可以用吗？
+          <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </div>
+        <div class="faq-answer">目前工具主要支持 Windows 系统。Mac 用户可以考虑使用虚拟机运行 Windows，或者等待后续版本的 Mac 支持。</div>
       </div>
     </div>
   </div>
@@ -938,54 +1182,131 @@ section {
 
 <!-- Footer -->
 <footer class="footer">
-  <div class="container">
-    <p>微信聊天记录导出教程 &middot; 仅供参考，请合法使用</p>
-  </div>
+  <div class="footer-text">微信聊天记录导出教程</div>
+  <div class="footer-update">最后更新: 2026年6月</div>
 </footer>
 
-<!-- Back to Top -->
-<button class="back-top" id="backTop" onclick="window.scrollTo({top:0})">
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
-</button>
-
 <script>
+// Typewriter effect
+(function() {
+  const title = '微信聊天记录导出教程';
+  const el = document.getElementById('heroTitle');
+  const cursor = el.querySelector('.cursor');
+  let i = 0;
+  function type() {
+    if (i < title.length) {
+      el.insertBefore(document.createTextNode(title[i]), cursor);
+      i++;
+      setTimeout(type, 120);
+    }
+  }
+  setTimeout(type, 600);
+})();
+
+// Floating particles
+(function() {
+  const hero = document.getElementById('hero');
+  const colors = ['#f59e0b', '#3b82f6', '#8b5cf6', '#10b981', '#f1f5f9'];
+  for (let i = 0; i < 20; i++) {
+    const dot = document.createElement('div');
+    dot.className = 'particle';
+    const size = 2 + Math.random() * 4;
+    dot.style.width = size + 'px';
+    dot.style.height = size + 'px';
+    dot.style.background = colors[Math.floor(Math.random() * colors.length)];
+    dot.style.left = Math.random() * 100 + '%';
+    dot.style.top = 30 + Math.random() * 60 + '%';
+    dot.style.animationDuration = (6 + Math.random() * 8) + 's';
+    dot.style.animationDelay = Math.random() * 6 + 's';
+    hero.appendChild(dot);
+  }
+})();
+
+// Scroll progress bar
+window.addEventListener('scroll', function() {
+  const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+  const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+  const progress = (scrollTop / scrollHeight) * 100;
+  document.getElementById('scrollProgress').style.width = progress + '%';
+});
+
 // Nav visibility
-const nav = document.getElementById('nav');
-const backTop = document.getElementById('backTop');
-const hero = document.querySelector('.hero');
+window.addEventListener('scroll', function() {
+  const nav = document.getElementById('nav');
+  if (window.scrollY > 300) {
+    nav.classList.add('visible');
+  } else {
+    nav.classList.remove('visible');
+  }
+});
 
-function onScroll() {
-  const y = window.scrollY;
-  nav.classList.toggle('visible', y > window.innerHeight * 0.5);
-  backTop.classList.toggle('show', y > 600);
-}
-window.addEventListener('scroll', onScroll, { passive: true });
+// Intersection Observer for animations
+(function() {
+  const observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        // Step number glow animation
+        const stepNum = entry.target.querySelector('.step-num');
+        if (stepNum && !stepNum.classList.contains('animate-glow')) {
+          stepNum.classList.add('animate-glow');
+        }
+      }
+    });
+  }, { threshold: 0.15, rootMargin: '0px 0px -50px 0px' });
 
-// Fade-in on scroll
-const obs = new IntersectionObserver((entries) => {
-  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
-}, { threshold: 0.15 });
-document.querySelectorAll('.fade-in').forEach(el => obs.observe(el));
+  document.querySelectorAll('.slide-in').forEach(function(el) {
+    observer.observe(el);
+  });
+})();
 
 // FAQ toggle
-function toggleFaq(btn) {
-  const item = btn.parentElement;
+function toggleFaq(el) {
+  const item = el.parentElement;
   const wasOpen = item.classList.contains('open');
-  // close all
-  document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
-  if (!wasOpen) item.classList.add('open');
+  // Close all
+  document.querySelectorAll('.faq-item').forEach(function(faq) {
+    faq.classList.remove('open');
+  });
+  if (!wasOpen) {
+    item.classList.add('open');
+  }
+}
+
+// Prompt toggle
+function togglePrompt(btn, id) {
+  const full = document.getElementById(id);
+  const isOpen = full.classList.contains('expanded');
+  full.classList.toggle('expanded');
+  btn.classList.toggle('open');
+  btn.innerHTML = isOpen
+    ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg> 展开全文'
+    : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg> 收起';
 }
 
 // Copy prompt
-function copyPrompt() {
-  const text = document.getElementById('promptText').innerText;
-  navigator.clipboard.writeText(text).then(() => {
-    const btn = document.getElementById('copyBtn');
+function copyPrompt(btn, id) {
+  const text = document.getElementById(id).textContent.trim();
+  navigator.clipboard.writeText(text).then(function() {
     btn.classList.add('copied');
-    btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> 已复制';
-    setTimeout(() => {
+    btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> 已复制';
+    setTimeout(function() {
       btn.classList.remove('copied');
-      btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> 复制';
+      btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg> 复制提示词';
+    }, 2000);
+  }).catch(function() {
+    // Fallback
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    btn.classList.add('copied');
+    btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> 已复制';
+    setTimeout(function() {
+      btn.classList.remove('copied');
+      btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg> 复制提示词';
     }, 2000);
   });
 }
