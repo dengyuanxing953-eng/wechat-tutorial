@@ -3,25 +3,30 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>微信聊天记录导出教程</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💬</text></svg>">
+<title>微信聊天记录导出教程 — 星野宇宙</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌍</text></svg>">
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;700;800;900&family=Space+Mono:wght@400;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
 :root {
-  --bg: #000;
-  --bg-alt: #050505;
-  --bg-card: #0a0a0a;
-  --text: #fff;
-  --text-secondary: #8a8a8a;
-  --text-muted: #595959;
-  --accent: #E32B16;
-  --accent-glow: rgba(227,43,22,0.25);
-  --border: rgba(255,255,255,0.08);
-  --border-strong: rgba(255,255,255,0.15);
-  --radius: 16px;
-  --radius-sm: 8px;
+  --space-deep: #060a18;
+  --space-mid: #0c1530;
+  --space-blue: #142450;
+  --earth-blue: #4A90D9;
+  --earth-green: #5BAA6A;
+  --earth-glow: rgba(74,144,217,0.15);
+  --star-white: #FFEEDD;
+  --star-warm: #FFE4A0;
+  --text: #e8eaf0;
+  --text-secondary: #8895b0;
+  --text-muted: #5a6a8a;
+  --accent: #4A90D9;
+  --accent2: #5BAA6A;
+  --accent3: #FFE4A0;
+  --border: rgba(255,255,255,0.06);
+  --border-light: rgba(255,255,255,0.12);
+  --radius: 12px;
   --max-w: 1100px;
   --fx-ease: cubic-bezier(0.16, 1, 0.3, 1);
   --fx-pad: clamp(14px, 2.6vw, 44px);
@@ -30,9 +35,10 @@
 }
 
 html { scroll-behavior: smooth; scroll-padding-top: 0; }
+
 body {
   font-family: var(--font-sans);
-  background: var(--bg);
+  background: var(--space-deep);
   color: var(--text);
   font-size: 17px;
   line-height: 1.65;
@@ -40,15 +46,77 @@ body {
   overflow-x: hidden;
 }
 
-/* ── Three.js Canvas ── */
-#bg-canvas {
+/* ── Starfield Background ── */
+.starfield {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
   z-index: 0;
   pointer-events: none;
+  overflow: hidden;
+}
+
+.star {
+  position: absolute;
+  border-radius: 50%;
+  background: #fff;
+  animation: twinkle var(--duration) ease-in-out infinite alternate;
+}
+
+@keyframes twinkle {
+  0% { opacity: 0.2; transform: scale(0.8); }
+  100% { opacity: 1; transform: scale(1.2); }
+}
+
+/* ── Earth Hero Background ── */
+.earth-bg {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  z-index: 0;
+  pointer-events: none;
+  background: 
+    radial-gradient(ellipse at 50% 120%, rgba(74,144,217,0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% -20%, rgba(255,228,160,0.04) 0%, transparent 40%),
+    radial-gradient(ellipse at 20% 60%, rgba(91,170,106,0.03) 0%, transparent 30%),
+    linear-gradient(180deg, var(--space-deep) 0%, var(--space-mid) 50%, var(--space-blue) 100%);
+}
+
+/* ── Floating Orbs ── */
+.orb {
+  position: fixed;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+  filter: blur(60px);
+  opacity: 0.3;
+}
+
+.orb-1 {
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, rgba(74,144,217,0.15), transparent);
+  top: 20%; left: -10%;
+  animation: orbFloat 20s ease-in-out infinite;
+}
+
+.orb-2 {
+  width: 300px; height: 300px;
+  background: radial-gradient(circle, rgba(91,170,106,0.1), transparent);
+  bottom: 10%; right: -5%;
+  animation: orbFloat 25s ease-in-out infinite reverse;
+}
+
+.orb-3 {
+  width: 250px; height: 250px;
+  background: radial-gradient(circle, rgba(255,228,160,0.08), transparent);
+  top: 50%; right: 20%;
+  animation: orbFloat 18s ease-in-out infinite 5s;
+}
+
+@keyframes orbFloat {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(30px, -40px) scale(1.1); }
+  66% { transform: translate(-20px, 20px) scale(0.9); }
 }
 
 /* ── Scroll Progress ── */
@@ -56,7 +124,7 @@ body {
   position: fixed;
   top: 0; left: 0;
   height: 2px;
-  background: var(--accent);
+  background: linear-gradient(90deg, var(--earth-blue), var(--earth-green), var(--star-warm));
   z-index: 10000;
   width: 0%;
   transition: width 0.05s linear;
@@ -68,9 +136,9 @@ body {
   top: 0; left: 0; right: 0;
   z-index: 100;
   padding: 0 var(--fx-pad);
-  backdrop-filter: saturate(180%) blur(24px);
-  -webkit-backdrop-filter: saturate(180%) blur(24px);
-  background: rgba(0,0,0,0.6);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  background: rgba(6,10,24,0.7);
   border-bottom: 0.5px solid var(--border);
   transform: translateY(-100%);
   transition: transform 0.4s var(--fx-ease);
@@ -93,14 +161,17 @@ body {
   color: var(--text);
   text-decoration: none;
   letter-spacing: 0.06em;
-  font-family: var(--font-sans);
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
-.nav-brand span { color: var(--accent); }
+.nav-brand-icon { font-size: 18px; }
+.nav-brand span { color: var(--earth-blue); }
 
 .nav-links {
   display: flex;
-  gap: 32px;
+  gap: 28px;
   list-style: none;
 }
 
@@ -119,18 +190,16 @@ body {
 .nav-links a::after {
   content: '';
   position: absolute;
-  bottom: -4px;
-  left: 0;
-  width: 0;
-  height: 1px;
-  background: var(--accent);
+  bottom: -4px; left: 0;
+  width: 0; height: 1px;
+  background: var(--earth-blue);
   transition: width 0.3s var(--fx-ease);
 }
 
 .nav-links a:hover { color: var(--text); }
 .nav-links a:hover::after { width: 100%; }
 
-/* ── Right Side Nav ── */
+/* ── Side Nav ── */
 .side-nav {
   position: fixed;
   right: var(--fx-pad);
@@ -143,17 +212,19 @@ body {
 }
 
 .side-dot {
-  width: 8px;
-  height: 8px;
+  width: 8px; height: 8px;
   border-radius: 50%;
-  background: rgba(255,255,255,0.2);
+  background: rgba(255,255,255,0.15);
   border: none;
   cursor: pointer;
   transition: all 0.4s var(--fx-ease);
   position: relative;
 }
 
-.side-dot.active { background: var(--accent); box-shadow: 0 0 12px var(--accent-glow); }
+.side-dot.active {
+  background: var(--earth-blue);
+  box-shadow: 0 0 12px var(--earth-glow);
+}
 
 .side-dot-label {
   position: absolute;
@@ -181,29 +252,32 @@ body {
   font-family: var(--font-mono);
   font-size: 64px;
   font-weight: 700;
-  color: rgba(255,255,255,0.04);
+  color: rgba(255,255,255,0.03);
   line-height: 1;
   pointer-events: none;
   letter-spacing: -0.04em;
 }
 
-/* ── Chapter (180vh each) ── */
-.chapter {
+/* ── Container ── */
+.container {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+}
+
+.section {
   position: relative;
   z-index: 1;
   min-height: 100vh;
   display: flex;
   align-items: center;
+  padding: 80px var(--fx-pad);
 }
 
-.chapter__pin {
-  width: 100%;
-  padding: 60px var(--fx-pad);
-}
-
-.chapter__inner {
+.section-inner {
   max-width: var(--max-w);
   margin: 0 auto;
+  width: 100%;
 }
 
 /* ── Kicker ── */
@@ -211,41 +285,32 @@ body {
   font-family: var(--font-mono);
   font-size: 10px;
   font-weight: 400;
-  color: var(--accent);
+  color: var(--earth-blue);
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  margin-bottom: 24px;
-  opacity: 0;
-  transform: translateY(20px);
-  transition: opacity 0.6s var(--fx-ease), transform 0.6s var(--fx-ease);
-}
-
-.kicker.visible { opacity: 1; transform: translateY(0); }
-
-/* ── Chapter Title ── */
-.chapter-title {
-  font-size: clamp(32px, 5vw, 72px);
-  font-weight: 900;
-  letter-spacing: -0.04em;
-  line-height: 1.05;
-  color: var(--text);
   margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
-.chapter-title .char {
-  display: inline-block;
-  opacity: 0;
-  transform: translateY(80%) rotateX(-40deg);
-  transition: opacity 0.6s var(--fx-ease), transform 0.6s var(--fx-ease);
+.kicker::before {
+  content: '◆';
+  font-size: 6px;
+  color: var(--earth-green);
 }
 
-.chapter-title .char.visible {
-  opacity: 1;
-  transform: translateY(0) rotateX(0);
+/* ── Title ── */
+.section-title {
+  font-size: clamp(32px, 5vw, 64px);
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  line-height: 1.08;
+  margin-bottom: 16px;
 }
 
-.chapter-subtitle {
-  font-size: clamp(14px, 1.2vw, 18px);
+.section-sub {
+  font-size: clamp(15px, 1.2vw, 18px);
   color: var(--text-secondary);
   max-width: 540px;
   line-height: 1.7;
@@ -253,22 +318,12 @@ body {
 }
 
 /* ── Hero ── */
-.hero-section {
+.hero {
   min-height: 100vh;
   display: flex;
   align-items: center;
   position: relative;
   z-index: 1;
-  overflow: hidden;
-}
-
-.hero-section::before {
-  content: '';
-  position: absolute;
-  top: -50%; left: -50%;
-  width: 200%; height: 200%;
-  background: radial-gradient(ellipse at 50% 40%, rgba(227,43,22,0.06) 0%, transparent 60%);
-  pointer-events: none;
 }
 
 .hero-content {
@@ -283,40 +338,39 @@ body {
 
 .hero-icon {
   font-size: 72px;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
   display: inline-block;
-  animation: float 4s var(--fx-ease) infinite;
-  filter: drop-shadow(0 0 30px rgba(227,43,22,0.2));
+  animation: earthSpin 20s linear infinite;
+  filter: drop-shadow(0 0 30px rgba(74,144,217,0.3));
 }
 
-@keyframes float {
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  25% { transform: translateY(-8px) rotate(-2deg); }
-  75% { transform: translateY(-4px) rotate(2deg); }
+@keyframes earthSpin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 .hero-title {
-  font-size: clamp(40px, 7vw, 90px);
+  font-size: clamp(36px, 6vw, 80px);
   font-weight: 900;
   letter-spacing: -0.04em;
-  line-height: 1.03;
-  margin-bottom: 28px;
-  max-width: 800px;
+  line-height: 1.05;
+  margin-bottom: 24px;
+  max-width: 780px;
 }
 
 .hero-title .gradient {
-  background: linear-gradient(135deg, var(--accent), #ff6b4a, #ff9a76);
+  background: linear-gradient(135deg, var(--earth-blue), var(--earth-green), var(--star-warm));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
-.hero-subtitle {
-  font-size: clamp(16px, 1.4vw, 20px);
+.hero-sub {
+  font-size: clamp(15px, 1.3vw, 19px);
   color: var(--text-secondary);
   max-width: 520px;
   line-height: 1.7;
-  margin-bottom: 48px;
+  margin-bottom: 40px;
   font-weight: 300;
 }
 
@@ -331,10 +385,9 @@ body {
   align-items: center;
   gap: 8px;
   padding: 14px 32px;
-  background: var(--accent);
+  background: linear-gradient(135deg, var(--earth-blue), #3a7bc8);
   color: #fff;
   border: none;
-  border-radius: 0;
   text-decoration: none;
   font-family: var(--font-sans);
   font-size: 14px;
@@ -342,13 +395,11 @@ body {
   letter-spacing: 0.04em;
   cursor: pointer;
   transition: all 0.35s var(--fx-ease);
-  position: relative;
 }
 
 .btn-primary:hover {
-  background: #ff3b24;
   transform: translateY(-2px);
-  box-shadow: 0 12px 48px var(--accent-glow);
+  box-shadow: 0 12px 48px var(--earth-glow);
 }
 
 .btn-secondary {
@@ -358,7 +409,7 @@ body {
   padding: 14px 32px;
   background: transparent;
   color: var(--text);
-  border: 1px solid var(--border-strong);
+  border: 1px solid var(--border-light);
   text-decoration: none;
   font-family: var(--font-sans);
   font-size: 14px;
@@ -369,27 +420,27 @@ body {
 }
 
 .btn-secondary:hover {
-  border-color: var(--accent);
-  color: var(--accent);
+  border-color: var(--earth-blue);
+  color: var(--earth-blue);
 }
 
 .hero-stats {
   display: flex;
   gap: 48px;
-  margin-top: 56px;
+  margin-top: 48px;
 }
 
 .hero-stat-value {
   font-family: var(--font-mono);
-  font-size: 36px;
+  font-size: 32px;
   font-weight: 700;
-  color: var(--accent);
+  color: var(--earth-blue);
   line-height: 1;
   display: block;
 }
 
 .hero-stat-label {
-  font-size: 12px;
+  font-size: 11px;
   color: var(--text-muted);
   font-family: var(--font-mono);
   letter-spacing: 0.08em;
@@ -398,11 +449,89 @@ body {
   display: block;
 }
 
+/* ── Workflow Journey (NEW PAGE) ── */
+.journey-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-top: 48px;
+}
+
+@media (max-width: 700px) {
+  .journey-grid { grid-template-columns: 1fr; }
+}
+
+.journey-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  padding: 32px;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s var(--fx-ease);
+}
+
+.journey-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: radial-gradient(ellipse at 30% 0%, var(--earth-glow), transparent 70%);
+  opacity: 0;
+  transition: opacity 0.4s;
+}
+
+.journey-card:hover {
+  border-color: rgba(74,144,217,0.3);
+  transform: translateY(-4px);
+}
+
+.journey-card:hover::before { opacity: 1; }
+
+.journey-card > * { position: relative; z-index: 1; }
+
+.journey-num {
+  font-family: var(--font-mono);
+  font-size: 40px;
+  font-weight: 700;
+  color: rgba(74,144,217,0.15);
+  line-height: 1;
+  margin-bottom: 8px;
+}
+
+.journey-title {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.journey-desc {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  font-weight: 300;
+}
+
+.journey-arrow {
+  display: none;
+}
+
+.journey-arrow.desktop {
+  display: flex;
+  justify-content: center;
+  padding: 8px 0;
+  color: var(--earth-blue);
+  font-size: 20px;
+  opacity: 0.4;
+}
+
 /* ── Tool Cards ── */
 .tool-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 20px;
+  gap: 24px;
   margin-top: 40px;
 }
 
@@ -411,9 +540,9 @@ body {
 }
 
 .tool-card {
-  background: var(--bg-card);
+  background: rgba(255,255,255,0.03);
   border: 1px solid var(--border);
-  padding: 36px;
+  padding: 32px;
   text-decoration: none;
   color: var(--text);
   transition: all 0.4s var(--fx-ease);
@@ -428,16 +557,16 @@ body {
   position: absolute;
   top: 0; left: 0; right: 0;
   height: 3px;
-  background: var(--accent);
+  background: linear-gradient(90deg, var(--earth-blue), var(--earth-green));
   transform: scaleX(0);
   transform-origin: left;
   transition: transform 0.5s var(--fx-ease);
 }
 
 .tool-card:hover {
-  border-color: var(--accent);
-  transform: translateY(-6px);
-  background: #0f0f0f;
+  border-color: rgba(74,144,217,0.35);
+  transform: translateY(-4px);
+  background: rgba(255,255,255,0.05);
 }
 
 .tool-card:hover::before { transform: scaleX(1); }
@@ -445,13 +574,13 @@ body {
 .tool-version {
   font-family: var(--font-mono);
   font-size: 11px;
-  color: var(--accent);
+  color: var(--earth-green);
   letter-spacing: 0.1em;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 .tool-name {
-  font-size: 24px;
+  font-size: 22px;
   font-weight: 800;
   margin-bottom: 10px;
   letter-spacing: -0.02em;
@@ -461,7 +590,7 @@ body {
   font-size: 14px;
   color: var(--text-secondary);
   line-height: 1.6;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
   flex: 1;
   font-weight: 300;
 }
@@ -470,16 +599,16 @@ body {
   font-family: var(--font-mono);
   font-size: 11px;
   color: var(--text-muted);
-  margin-bottom: 20px;
+  margin-bottom: 16px;
 }
 
 .tool-download-btn {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  padding: 12px 28px;
+  gap: 8px;
+  padding: 11px 24px;
   background: transparent;
-  border: 1px solid var(--border-strong);
+  border: 1px solid var(--border-light);
   color: var(--text);
   font-size: 13px;
   font-weight: 600;
@@ -491,209 +620,16 @@ body {
 }
 
 .tool-card:hover .tool-download-btn {
-  background: var(--accent);
-  border-color: var(--accent);
+  background: linear-gradient(135deg, var(--earth-blue), #3a7bc8);
+  border-color: transparent;
 }
 
 .tool-download-btn svg {
   width: 16px; height: 16px;
-  transition: transform 0.3s var(--fx-ease);
+  transition: transform 0.3s;
 }
 
-.tool-card:hover .tool-download-btn svg {
-  transform: translateY(2px);
-}
-
-/* ── 3D Card Tilt Container ── */
-.tilt-card {
-  perspective: 1200px;
-  margin-top: 40px;
-}
-
-.tilt-card-inner {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  padding: 40px;
-  transition: transform 0.2s var(--fx-ease);
-  transform-style: preserve-3d;
-}
-
-.tilt-card-inner:hover {
-  border-color: rgba(227,43,22,0.3);
-}
-
-.tilt-card-content {
-  transform: translateZ(30px);
-}
-
-.tilt-card-label {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  color: var(--text-muted);
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  margin-bottom: 12px;
-  display: block;
-}
-
-/* ── Demo Steps ── */
-.demo-visual {
-  display: flex;
-  gap: 40px;
-  align-items: flex-start;
-}
-
-@media (max-width: 700px) {
-  .demo-visual { flex-direction: column; }
-}
-
-.demo-window {
-  flex: 1;
-  max-width: 420px;
-  background: rgba(0,0,0,0.4);
-  border: 1px solid var(--border);
-  overflow: hidden;
-}
-
-.demo-window-header {
-  padding: 10px 14px;
-  background: rgba(255,255,255,0.03);
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.demo-window-title {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  color: var(--text-secondary);
-}
-
-.demo-window-body {
-  padding: 24px;
-  min-height: 140px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 14px;
-}
-
-.demo-btn {
-  padding: 12px 30px;
-  background: #22c55e;
-  color: #000;
-  border: none;
-  font-family: var(--font-sans);
-  font-size: 14px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.3s;
-  position: relative;
-}
-
-.demo-btn:hover {
-  transform: scale(1.05);
-}
-
-.demo-btn.animate {
-  animation: pulse-demo 1.5s ease-in-out infinite;
-}
-
-@keyframes pulse-demo {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(34,197,94,0.3); }
-  50% { box-shadow: 0 0 0 16px rgba(34,197,94,0); }
-}
-
-.demo-key-display {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid var(--border);
-  padding: 10px 16px;
-  font-family: var(--font-mono);
-  font-size: 12px;
-  color: var(--text);
-  opacity: 0;
-  transform: translateY(10px);
-  transition: all 0.5s var(--fx-ease);
-}
-
-.demo-key-display.show { opacity: 1; transform: translateY(0); }
-
-.demo-key-dot {
-  width: 4px; height: 4px;
-  background: #22c55e;
-  border-radius: 50%;
-  animation: blink 1s infinite;
-}
-
-@keyframes blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0; }
-}
-
-.demo-steps-list {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.demo-step {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 10px 14px;
-  border: 1px solid var(--border);
-  font-size: 13px;
-  color: var(--text-secondary);
-  transition: all 0.3s var(--fx-ease);
-}
-
-.demo-step.active {
-  border-color: var(--accent);
-  color: var(--text);
-  background: rgba(227,43,22,0.06);
-}
-
-.demo-step.done {
-  border-color: rgba(34,197,94,0.3);
-  color: var(--text-secondary);
-}
-
-.demo-step-num {
-  width: 22px; height: 22px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(255,255,255,0.06);
-  font-family: var(--font-mono);
-  font-size: 10px;
-  font-weight: 700;
-  flex-shrink: 0;
-}
-
-.demo-step.active .demo-step-num {
-  background: var(--accent);
-  color: #fff;
-}
-
-.demo-step.done .demo-step-num {
-  background: rgba(34,197,94,0.2);
-  color: #22c55e;
-}
-
-.demo-step-check {
-  margin-left: auto;
-  color: #22c55e;
-  opacity: 0;
-  transition: opacity 0.3s;
-}
-
-.demo-step.done .demo-step-check { opacity: 1; }
+.tool-card:hover .tool-download-btn svg { transform: translateY(2px); }
 
 /* ── Step Cards ── */
 .step-grid {
@@ -708,32 +644,30 @@ body {
 }
 
 .step-card {
-  background: var(--bg-card);
+  background: rgba(255,255,255,0.03);
   border: 1px solid var(--border);
   padding: 28px;
   transition: all 0.35s var(--fx-ease);
-  position: relative;
 }
 
 .step-card:hover {
-  border-color: rgba(227,43,22,0.25);
+  border-color: rgba(74,144,217,0.25);
   transform: translateY(-3px);
 }
 
 .step-card-num {
   font-family: var(--font-mono);
-  font-size: 32px;
+  font-size: 28px;
   font-weight: 700;
-  color: var(--accent);
+  color: var(--earth-blue);
   line-height: 1;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 .step-card-title {
   font-size: 16px;
   font-weight: 700;
-  margin-bottom: 8px;
-  color: var(--text);
+  margin-bottom: 6px;
 }
 
 .step-card-text {
@@ -749,8 +683,165 @@ body {
   padding: 2px 8px;
   background: rgba(255,255,255,0.05);
   border: 1px solid var(--border);
-  color: var(--accent);
+  color: var(--earth-green);
 }
+
+/* ── Demo Box ── */
+.demo-box {
+  margin-top: 40px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  padding: 32px;
+}
+
+.demo-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 20px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-muted);
+  letter-spacing: 0.08em;
+}
+
+.demo-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+.demo-inner {
+  display: flex;
+  gap: 32px;
+  align-items: flex-start;
+}
+
+@media (max-width: 700px) {
+  .demo-inner { flex-direction: column; }
+}
+
+.demo-window {
+  flex: 1;
+  max-width: 380px;
+  background: rgba(0,0,0,0.3);
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.demo-window-top {
+  padding: 8px 12px;
+  background: rgba(255,255,255,0.03);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.demo-win-title {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-left: 4px;
+}
+
+.demo-win-body {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.demo-btn {
+  padding: 12px 28px;
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  color: #000;
+  border: none;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.demo-btn:hover { transform: scale(1.05); box-shadow: 0 0 24px rgba(34,197,94,0.3); }
+.demo-btn.pulse { animation: pulseDemo 1.5s ease-in-out infinite; }
+
+@keyframes pulseDemo {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(34,197,94,0.3); }
+  50% { box-shadow: 0 0 0 16px rgba(34,197,94,0); }
+}
+
+.demo-key {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--border);
+  padding: 10px 16px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all 0.5s var(--fx-ease);
+}
+
+.demo-key.show { opacity: 1; transform: translateY(0); }
+
+.demo-key-dot {
+  width: 4px; height: 4px;
+  background: #22c55e;
+  border-radius: 50%;
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; } 50% { opacity: 0; }
+}
+
+.demo-steps {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.demo-step-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  font-size: 13px;
+  color: var(--text-secondary);
+  transition: all 0.3s var(--fx-ease);
+}
+
+.demo-step-item.active {
+  border-color: var(--earth-blue);
+  color: var(--text);
+  background: rgba(74,144,217,0.06);
+}
+
+.demo-step-item.done {
+  border-color: rgba(34,197,94,0.3);
+  color: var(--text-secondary);
+}
+
+.demo-step-num {
+  width: 20px; height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,0.06);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.demo-step-item.active .demo-step-num { background: var(--earth-blue); color: #fff; }
+.demo-step-item.done .demo-step-num { background: rgba(34,197,94,0.2); color: #22c55e; }
+
+.demo-step-check { margin-left: auto; color: #22c55e; opacity: 0; transition: opacity 0.3s; }
+.demo-step-item.done .demo-step-check { opacity: 1; }
 
 /* ── AI Cards ── */
 .ai-grid {
@@ -765,7 +856,7 @@ body {
 }
 
 .ai-card {
-  background: var(--bg-card);
+  background: rgba(255,255,255,0.03);
   border: 1px solid var(--border);
   padding: 28px 20px;
   text-decoration: none;
@@ -775,13 +866,13 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
 }
 
 .ai-card:hover {
-  border-color: var(--accent);
+  border-color: var(--earth-blue);
   transform: translateY(-4px);
-  background: #0f0f0f;
+  background: rgba(255,255,255,0.05);
 }
 
 .ai-card-icon {
@@ -794,120 +885,8 @@ body {
   color: #fff;
 }
 
-.ai-card-name {
-  font-size: 15px;
-  font-weight: 600;
-}
-
-.ai-card-url {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  color: var(--text-muted);
-  letter-spacing: 0.05em;
-}
-
-/* ── Prompt Cards ── */
-.prompt-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  margin-top: 32px;
-}
-
-.prompt-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  overflow: hidden;
-  transition: border-color 0.3s;
-}
-
-.prompt-card:hover { border-color: rgba(227,43,22,0.25); }
-
-.prompt-card-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 20px 24px;
-  cursor: pointer;
-  user-select: none;
-}
-
-.prompt-card-title {
-  font-size: 15px;
-  font-weight: 700;
-}
-
-.prompt-card-desc {
-  font-size: 13px;
-  color: var(--text-secondary);
-  margin-top: 4px;
-  font-weight: 300;
-}
-
-.prompt-toggle-btn {
-  background: transparent;
-  border: 1px solid var(--border-strong);
-  color: var(--text-secondary);
-  padding: 6px 16px;
-  font-size: 11px;
-  font-family: var(--font-mono);
-  letter-spacing: 0.08em;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-
-.prompt-toggle-btn:hover {
-  border-color: var(--accent);
-  color: var(--accent);
-}
-
-.prompt-card-body {
-  max-height: 0;
-  overflow: hidden;
-  transition: all 0.4s var(--fx-ease);
-  padding: 0 24px;
-}
-
-.prompt-card.open .prompt-card-body {
-  max-height: 500px;
-  padding: 0 24px 20px;
-}
-
-.prompt-full {
-  display: none;
-  font-family: var(--font-mono);
-  font-size: 12px;
-  color: var(--text-secondary);
-  line-height: 1.7;
-  white-space: pre-wrap;
-  background: rgba(0,0,0,0.3);
-  border: 1px solid var(--border);
-  padding: 16px;
-  margin-top: 12px;
-  max-height: 250px;
-  overflow-y: auto;
-}
-
-.prompt-card.open .prompt-full { display: block; }
-
-.prompt-copy-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: var(--accent);
-  border: none;
-  color: #fff;
-  padding: 6px 16px;
-  font-size: 11px;
-  font-family: var(--font-mono);
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s;
-  margin-top: 10px;
-}
-
-.prompt-copy-btn:hover { background: #ff3b24; }
-.prompt-copy-btn.copied { background: #22c55e; }
+.ai-card-name { font-size: 15px; font-weight: 600; }
+.ai-card-url { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); }
 
 /* ── FAQ ── */
 .faq-grid {
@@ -918,15 +897,15 @@ body {
 }
 
 .faq-item {
-  background: var(--bg-card);
+  background: rgba(255,255,255,0.03);
   border: 1px solid var(--border);
   overflow: hidden;
   transition: border-color 0.3s;
 }
 
-.faq-item:hover { border-color: rgba(227,43,22,0.2); }
+.faq-item:hover { border-color: rgba(74,144,217,0.2); }
 
-.faq-question {
+.faq-q {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -937,10 +916,10 @@ body {
   font-weight: 600;
 }
 
-.faq-icon { transition: transform 0.3s var(--fx-ease); color: var(--text-secondary); font-size: 12px; }
+.faq-icon { transition: transform 0.3s; color: var(--text-muted); font-size: 11px; }
 .faq-item.open .faq-icon { transform: rotate(180deg); }
 
-.faq-answer {
+.faq-a {
   max-height: 0;
   overflow: hidden;
   transition: all 0.4s var(--fx-ease);
@@ -951,7 +930,7 @@ body {
   font-weight: 300;
 }
 
-.faq-item.open .faq-answer {
+.faq-item.open .faq-a {
   max-height: 250px;
   padding: 0 24px 20px;
 }
@@ -977,7 +956,7 @@ body {
   letter-spacing: 0.08em;
 }
 
-.footer-text .star { color: var(--accent); }
+.footer-text .star { color: var(--earth-blue); }
 
 /* ── Responsive ── */
 @media (max-width: 700px) {
@@ -985,67 +964,72 @@ body {
   .side-nav { display: none; }
   .section-num { display: none; }
   .hero-stats { gap: 24px; flex-wrap: wrap; }
-  .demo-visual { flex-direction: column; }
 }
 </style>
 </head>
 <body>
 
-<!-- Three.js Canvas -->
-<canvas id="bg-canvas"></canvas>
+<!-- Background Layers -->
+<div class="starfield" id="starfield"></div>
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="orb orb-3"></div>
+<div class="earth-bg"></div>
 
 <!-- Scroll Progress -->
 <div class="scroll-progress" id="progress"></div>
 
 <!-- Section Number -->
-<div class="section-num" id="sectionNum">01</div>
+<div class="section-num" id="sectionNum">00</div>
 
-<!-- Side Navigation -->
+<!-- Side Nav -->
 <nav class="side-nav" id="sideNav">
-  <button class="side-dot active" data-target="hero"><span class="side-dot-label">首页</span></button>
-  <button class="side-dot" data-target="s1"><span class="side-dot-label">准备工具</span></button>
-  <button class="side-dot" data-target="s2"><span class="side-dot-label">提取密钥</span></button>
-  <button class="side-dot" data-target="s3"><span class="side-dot-label">解密导出</span></button>
-  <button class="side-dot" data-target="s4"><span class="side-dot-label">AI分析</span></button>
-  <button class="side-dot" data-target="s5"><span class="side-dot-label">常见问题</span></button>
+  <button class="side-dot active" data-target="hero"><span class="side-dot-label">星野宇宙</span></button>
+  <button class="side-dot" data-target="flow"><span class="side-dot-label">流程总览</span></button>
+  <button class="side-dot" data-target="tools"><span class="side-dot-label">准备工具</span></button>
+  <button class="side-dot" data-target="key"><span class="side-dot-label">提取密钥</span></button>
+  <button class="side-dot" data-target="decrypt"><span class="side-dot-label">解密导出</span></button>
+  <button class="side-dot" data-target="ai"><span class="side-dot-label">AI分析</span></button>
+  <button class="side-dot" data-target="faq"><span class="side-dot-label">FAQ</span></button>
 </nav>
 
-<!-- Top Navigation -->
+<!-- Top Nav -->
 <nav class="nav" id="nav">
   <div class="nav-inner">
-    <a href="#" class="nav-brand">微信<span>聊天</span>导出</a>
+    <a href="#" class="nav-brand"><span class="nav-brand-icon">🌍</span> 星野<span>聊天</span>导出</a>
     <ul class="nav-links">
-      <li><a href="#s1">工具下载</a></li>
-      <li><a href="#s2">提取密钥</a></li>
-      <li><a href="#s3">解密导出</a></li>
-      <li><a href="#s4">AI分析</a></li>
-      <li><a href="#s5">FAQ</a></li>
+      <li><a href="#flow">流程总览</a></li>
+      <li><a href="#tools">工具下载</a></li>
+      <li><a href="#key">提取密钥</a></li>
+      <li><a href="#decrypt">解密导出</a></li>
+      <li><a href="#ai">AI分析</a></li>
+      <li><a href="#faq">FAQ</a></li>
     </ul>
   </div>
 </nav>
 
-<!-- Hero -->
-<section class="hero-section" data-section="0" id="hero">
+<!-- HERO -->
+<section class="hero" id="hero">
   <div class="hero-content">
     <div class="hero-inner">
-      <div class="hero-icon">💬</div>
+      <div class="hero-icon">🌍</div>
       <h1 class="hero-title">
         导出你的<br>
-        <span class="gradient">微信聊天记录</span>
+        <span class="gradient">微信聊天宇宙</span>
       </h1>
-      <p class="hero-subtitle">
+      <p class="hero-sub">
         免费开源工具，三步导出微信本地聊天数据。<br>
         离线运行，无需联网，保护你的隐私。
       </p>
       <div class="hero-actions">
-        <a href="#s1" class="btn-primary">
-          开始使用
+        <a href="#flow" class="btn-primary">
+          探索流程
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
         </a>
-        <a href="#s5" class="btn-secondary">常见问题</a>
+        <a href="#faq" class="btn-secondary">常见问题</a>
       </div>
       <div class="hero-stats">
-        <div><span class="hero-stat-value">03</span><span class="hero-stat-label">步骤</span></div>
+        <div><span class="hero-stat-value">04</span><span class="hero-stat-label">步骤</span></div>
         <div><span class="hero-stat-value">免费</span><span class="hero-stat-label">开源</span></div>
         <div><span class="hero-stat-value">离线</span><span class="hero-stat-label">安全</span></div>
       </div>
@@ -1053,350 +1037,264 @@ body {
   </div>
 </section>
 
-<!-- Section 1: Tools -->
-<section class="chapter" data-section="1" id="s1">
-  <div class="chapter__pin">
-    <div class="chapter__inner">
-      <div class="kicker">01 — 准备工具</div>
-      <h2 class="chapter-title" data-split>下载所需工具</h2>
-      <p class="chapter-subtitle">两款免费开源工具，离线运行。已预置国内加速代理下载链接。</p>
-      
-      <div class="tool-grid">
-        <a href="https://ghfast.top/https://github.com/ycccccccy/wx_key/releases/download/v2.1.8/wx_key-windows-v2.1.8.zip" class="tool-card" target="_blank" rel="noopener">
-          <div class="tool-version">v2.1.8</div>
-          <div class="tool-name">wx_key</div>
-          <div class="tool-desc">获取微信数据库密钥，解密本地存储的聊天数据</div>
-          <div class="tool-size">约 18MB / ZIP</div>
-          <div class="tool-download-btn">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-              <polyline points="7 10 12 15 17 10"/>
-              <line x1="12" y1="15" x2="12" y2="3"/>
-            </svg>
-            直接下载
-          </div>
-        </a>
-        <a href="https://ghfast.top/https://github.com/LifeArchiveProject/WeChatDataAnalysis/releases/download/v1.9.1/WeChatDataAnalysis-1.9.1-Setup.exe" class="tool-card" target="_blank" rel="noopener">
-          <div class="tool-version">v1.9.1</div>
-          <div class="tool-name">WeChatDataAnalysis</div>
-          <div class="tool-desc">一键导出聊天记录为可读文本，支持按联系人分类</div>
-          <div class="tool-size">约 99MB / EXE</div>
-          <div class="tool-download-btn">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-              <polyline points="7 10 12 15 17 10"/>
-              <line x1="12" y1="15" x2="12" y2="3"/>
-            </svg>
-            直接下载
-          </div>
-        </a>
-      </div>
+<!-- FLOW: 流程总览 (NEW PAGE) -->
+<section class="section" id="flow">
+  <div class="section-inner">
+    <div class="kicker">流程总览 — 星际航图</div>
+    <h2 class="section-title">从微信到 AI 分析的<br>完整旅程</h2>
+    <p class="section-sub">就像一次星际航行，每个站点都有明确的任务。全程约 10 分钟。</p>
 
-      <div class="tilt-card" id="tiltDemo1">
-        <div class="tilt-card-inner">
-          <div class="tilt-card-content">
-            <span class="tilt-card-label">实时操作演示</span>
-            <div class="demo-visual">
-              <div class="demo-window">
-                <div class="demo-window-header">
-                  <div class="demo-dot" style="width:8px;height:8px;border-radius:50%;background:#ff5f57"></div>
-                  <div class="demo-dot" style="width:8px;height:8px;border-radius:50%;background:#ffbd2e"></div>
-                  <div class="demo-dot" style="width:8px;height:8px;border-radius:50%;background:#28c840"></div>
-                  <span class="demo-window-title" style="margin-left:4px">wx_key 密钥提取器</span>
-                </div>
-                <div class="demo-window-body">
-                  <button class="demo-btn animate" id="demoBtn1">开始提取密钥</button>
-                  <div class="demo-key-display" id="demoKey1">
-                    <span class="demo-key-dot"></span>
-                    <span id="keyValue1">DB_KEY_A8F3...C92E</span>
-                  </div>
-                </div>
-              </div>
-              <div class="demo-steps-list" id="demoSteps1">
-                <div class="demo-step active" data-step="0">
-                  <span class="demo-step-num">1</span>
-                  <span>打开微信并登录</span>
-                  <span class="demo-step-check">✓</span>
-                </div>
-                <div class="demo-step" data-step="1">
-                  <span class="demo-step-num">2</span>
-                  <span>管理员运行 wx_key.exe</span>
-                  <span class="demo-step-check">✓</span>
-                </div>
-                <div class="demo-step" data-step="2">
-                  <span class="demo-step-num">3</span>
-                  <span>点击"提取密钥"</span>
-                  <span class="demo-step-check">✓</span>
-                </div>
-                <div class="demo-step" data-step="3">
-                  <span class="demo-step-num">4</span>
-                  <span>复制密钥</span>
-                  <span class="demo-step-check">✓</span>
-                </div>
-              </div>
+    <div class="journey-grid">
+      <div class="journey-card">
+        <div class="journey-num">01</div>
+        <div class="journey-title">🌍 出发 · 下载工具</div>
+        <div class="journey-desc">下载 wx_key 和 WeChatDataAnalysis 两款开源工具，离线运行，无需联网。</div>
+      </div>
+      <div class="journey-card">
+        <div class="journey-num">02</div>
+        <div class="journey-title">🔑 跃迁 · 提取密钥</div>
+        <div class="journey-desc">运行 wx_key，获取微信本地数据库的解密密钥，约 3 分钟。</div>
+      </div>
+      <div class="journey-card">
+        <div class="journey-num">03</div>
+        <div class="journey-title">📡 着陆 · 解密导出</div>
+        <div class="journey-desc">用 WeChatDataAnalysis 解密 MSG0.db，导出为可读的 TXT 文件。</div>
+      </div>
+      <div class="journey-card">
+        <div class="journey-num">04</div>
+        <div class="journey-title">🧠 探索 · AI 分析</div>
+        <div class="journey-desc">将导出文件上传到 AI 平台，配合提示词深度分析自己的聊天数据。</div>
+      </div>
+    </div>
+
+    <div style="margin-top:40px;padding:24px;background:rgba(74,144,217,0.06);border:1px solid rgba(74,144,217,0.2);display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+      <span style="font-size:20px;">⏱️</span>
+      <span style="font-size:14px;font-weight:600;">全程约 10 分钟</span>
+      <span style="font-size:13px;color:var(--text-secondary);font-weight:300;">所有工具离线运行，数据不上传任何服务器</span>
+    </div>
+  </div>
+</section>
+
+<!-- TOOLS -->
+<section class="section" id="tools">
+  <div class="section-inner">
+    <div class="kicker">第一步 · 下载工具</div>
+    <h2 class="section-title">准备你的装备</h2>
+    <p class="section-sub">两款免费开源工具，已预置国内加速下载链接。</p>
+
+    <div class="tool-grid">
+      <a href="https://ghfast.top/https://github.com/ycccccccy/wx_key/releases/download/v2.1.8/wx_key-windows-v2.1.8.zip" class="tool-card" target="_blank" rel="noopener">
+        <div class="tool-version">v2.1.8</div>
+        <div class="tool-name">wx_key</div>
+        <div class="tool-desc">获取微信数据库密钥，解密本地存储的聊天数据</div>
+        <div class="tool-size">约 18MB / ZIP</div>
+        <div class="tool-download-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          直接下载
+        </div>
+      </a>
+      <a href="https://ghfast.top/https://github.com/LifeArchiveProject/WeChatDataAnalysis/releases/download/v1.9.1/WeChatDataAnalysis-1.9.1-Setup.exe" class="tool-card" target="_blank" rel="noopener">
+        <div class="tool-version">v1.9.1</div>
+        <div class="tool-name">WeChatDataAnalysis</div>
+        <div class="tool-desc">一键导出聊天记录为可读文本，支持按联系人分类</div>
+        <div class="tool-size">约 99MB / EXE</div>
+        <div class="tool-download-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          直接下载
+        </div>
+      </a>
+    </div>
+
+    <div class="demo-box">
+      <div class="demo-header">
+        <div class="demo-dot" style="background:#ff5f57"></div>
+        <div class="demo-dot" style="background:#ffbd2e"></div>
+        <div class="demo-dot" style="background:#28c840"></div>
+        操作演示 · wx_key
+      </div>
+      <div class="demo-inner">
+        <div class="demo-window">
+          <div class="demo-window-top">
+            <div class="demo-dot" style="background:#ff5f57"></div>
+            <div class="demo-dot" style="background:#ffbd2e"></div>
+            <div class="demo-dot" style="background:#28c840"></div>
+            <span class="demo-win-title">wx_key 密钥提取器</span>
+          </div>
+          <div class="demo-win-body">
+            <button class="demo-btn pulse" id="demoBtn1">开始提取密钥 🚀</button>
+            <div class="demo-key" id="demoKey1">
+              <span class="demo-key-dot"></span>
+              <span>DB_KEY_A8F3...C92E</span>
             </div>
           </div>
+        </div>
+        <div class="demo-steps" id="demoSteps1">
+          <div class="demo-step-item active"><span class="demo-step-num">1</span><span>打开微信并登录</span><span class="demo-step-check">✓</span></div>
+          <div class="demo-step-item"><span class="demo-step-num">2</span><span>管理员运行 wx_key.exe</span><span class="demo-step-check">✓</span></div>
+          <div class="demo-step-item"><span class="demo-step-num">3</span><span>点击"提取密钥"</span><span class="demo-step-check">✓</span></div>
+          <div class="demo-step-item"><span class="demo-step-num">4</span><span>复制密钥</span><span class="demo-step-check">✓</span></div>
         </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- Section 2: Extract Key -->
-<section class="chapter" data-section="2" id="s2">
-  <div class="chapter__pin">
-    <div class="chapter__inner">
-      <div class="kicker">02 — 提取密钥</div>
-      <h2 class="chapter-title" data-split>获取数据库密钥</h2>
-      <p class="chapter-subtitle">大约 3 分钟，获取微信数据库的解密密钥</p>
-      
-      <div class="step-grid">
-        <div class="step-card">
-          <div class="step-card-num">01</div>
-          <div class="step-card-title">打开微信 PC 版并登录</div>
-          <div class="step-card-text">确保微信电脑端已经登录，并且可以看到聊天记录列表。</div>
-        </div>
-        <div class="step-card">
-          <div class="step-card-num">02</div>
-          <div class="step-card-title">以管理员身份运行</div>
-          <div class="step-card-text">解压压缩包，右键 <code>wx_key.exe</code> → 以管理员身份运行。</div>
-        </div>
-        <div class="step-card">
-          <div class="step-card-num">03</div>
-          <div class="step-card-title">点击"开始提取密钥"</div>
-          <div class="step-card-text">在 wx_key 界面中，点击绿色按钮，等待几秒钟。</div>
-        </div>
-        <div class="step-card">
-          <div class="step-card-num">04</div>
-          <div class="step-card-title">复制数据库密钥</div>
-          <div class="step-card-text">工具显示密钥字符串，点击复制按钮保存备用。</div>
-        </div>
+<!-- KEY -->
+<section class="section" id="key">
+  <div class="section-inner">
+    <div class="kicker">第二步 · 提取密钥</div>
+    <h2 class="section-title">获取数据库密钥</h2>
+    <p class="section-sub">大约 3 分钟，获取微信数据库的解密密钥。</p>
+
+    <div class="step-grid">
+      <div class="step-card">
+        <div class="step-card-num">01</div>
+        <div class="step-card-title">打开微信 PC 版并登录</div>
+        <div class="step-card-text">确保微信电脑端已经登录，可以看到聊天记录列表。</div>
+      </div>
+      <div class="step-card">
+        <div class="step-card-num">02</div>
+        <div class="step-card-title">以管理员身份运行</div>
+        <div class="step-card-text">解压压缩包，右键 <code>wx_key.exe</code> → 以管理员身份运行。</div>
+      </div>
+      <div class="step-card">
+        <div class="step-card-num">03</div>
+        <div class="step-card-title">点击"开始提取密钥"</div>
+        <div class="step-card-text">在 wx_key 界面中，点击绿色按钮，等待几秒钟。</div>
+      </div>
+      <div class="step-card">
+        <div class="step-card-num">04</div>
+        <div class="step-card-title">复制数据库密钥</div>
+        <div class="step-card-text">工具显示密钥字符串，点击复制按钮保存备用。</div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- Section 3: Decrypt -->
-<section class="chapter" data-section="3" id="s3">
-  <div class="chapter__pin">
-    <div class="chapter__inner">
-      <div class="kicker">03 — 解密导出</div>
-      <h2 class="chapter-title" data-split>解密并导出聊天记录</h2>
-      <p class="chapter-subtitle">大约 5 分钟，将加密数据库导出为可读文本文件</p>
-      
-      <div class="step-grid">
-        <div class="step-card">
-          <div class="step-card-num">01</div>
-          <div class="step-card-title">检测本机微信数据</div>
-          <div class="step-card-text">打开 WeChatDataAnalysis，点击"检测本机微信数据"。</div>
-        </div>
-        <div class="step-card">
-          <div class="step-card-num">02</div>
-          <div class="step-card-title">选择数据库文件</div>
-          <div class="step-card-text">检测完成后，选择要解密的 <code>MSG0.db</code> 文件。</div>
-        </div>
-        <div class="step-card">
-          <div class="step-card-num">03</div>
-          <div class="step-card-title">粘贴数据库密钥</div>
-          <div class="step-card-text">将之前复制的密钥粘贴到密钥输入框中。</div>
-        </div>
-        <div class="step-card">
-          <div class="step-card-num">04</div>
-          <div class="step-card-title">解密并导出 TXT</div>
-          <div class="step-card-text">点击解密，完成后选择导出为 TXT 格式到本地。</div>
-        </div>
-      </div>
+<!-- DECRYPT -->
+<section class="section" id="decrypt">
+  <div class="section-inner">
+    <div class="kicker">第三步 · 解密导出</div>
+    <h2 class="section-title">解密并导出聊天记录</h2>
+    <p class="section-sub">大约 5 分钟，将加密数据库导出为可读的 TXT 文件。</p>
 
-      <div class="tilt-card" id="tiltDemo2">
-        <div class="tilt-card-inner">
-          <div class="tilt-card-content">
-            <span class="tilt-card-label">解密流程演示</span>
-            <div class="demo-visual" style="flex-direction:column;align-items:stretch">
-              <div class="demo-steps-list" id="demoSteps2" style="max-width:100%">
-                <div class="demo-step active" data-step="0">
-                  <span class="demo-step-num">1</span>
-                  <span>检测本机微信数据</span>
-                  <span class="demo-step-check">✓</span>
-                </div>
-                <div class="demo-step" data-step="1">
-                  <span class="demo-step-num">2</span>
-                  <span>选择 MSG0.db</span>
-                  <span class="demo-step-check">✓</span>
-                </div>
-                <div class="demo-step" data-step="2">
-                  <span class="demo-step-num">3</span>
-                  <span>粘贴密钥并解密</span>
-                  <span class="demo-step-check">✓</span>
-                </div>
-                <div class="demo-step" data-step="3">
-                  <span class="demo-step-num">4</span>
-                  <span>导出 TXT 文件</span>
-                  <span class="demo-step-check">✓</span>
-                </div>
-              </div>
-              <button class="demo-btn animate" id="demoBtn2" style="background:var(--accent);align-self:center;margin-top:12px">开始解密演示</button>
-            </div>
-          </div>
+    <div class="step-grid">
+      <div class="step-card">
+        <div class="step-card-num">01</div>
+        <div class="step-card-title">检测本机微信数据</div>
+        <div class="step-card-text">打开 WeChatDataAnalysis，点击"检测本机微信数据"。</div>
+      </div>
+      <div class="step-card">
+        <div class="step-card-num">02</div>
+        <div class="step-card-title">选择 MSG0.db</div>
+        <div class="step-card-text">检测完成后，选择要解密的数据库文件。</div>
+      </div>
+      <div class="step-card">
+        <div class="step-card-num">03</div>
+        <div class="step-card-title">粘贴密钥并解密</div>
+        <div class="step-card-text">将复制的密钥粘贴到输入框，点击解密。</div>
+      </div>
+      <div class="step-card">
+        <div class="step-card-num">04</div>
+        <div class="step-card-title">导出为 TXT</div>
+        <div class="step-card-text">解密完成后，选择导出为 TXT 格式保存到本地。</div>
+      </div>
+    </div>
+
+    <div class="demo-box">
+      <div class="demo-header">
+        <div class="demo-dot" style="background:#ff5f57"></div>
+        <div class="demo-dot" style="background:#ffbd2e"></div>
+        <div class="demo-dot" style="background:#28c840"></div>
+        操作演示 · 解密流程
+      </div>
+      <div class="demo-inner" style="flex-direction:column">
+        <div class="demo-steps" id="demoSteps2" style="max-width:100%">
+          <div class="demo-step-item active"><span class="demo-step-num">1</span><span>检测微信数据</span><span class="demo-step-check">✓</span></div>
+          <div class="demo-step-item"><span class="demo-step-num">2</span><span>选择 MSG0.db</span><span class="demo-step-check">✓</span></div>
+          <div class="demo-step-item"><span class="demo-step-num">3</span><span>粘贴密钥解密</span><span class="demo-step-check">✓</span></div>
+          <div class="demo-step-item"><span class="demo-step-num">4</span><span>导出 TXT 文件</span><span class="demo-step-check">✓</span></div>
         </div>
+        <button class="demo-btn pulse" id="demoBtn2" style="background:linear-gradient(135deg,var(--earth-blue),#3a7bc8);align-self:center">开始解密演示 🛸</button>
       </div>
     </div>
   </div>
 </section>
 
-<!-- Section 4: AI Analysis -->
-<section class="chapter" data-section="4" id="s4">
-  <div class="chapter__pin">
-    <div class="chapter__inner">
-      <div class="kicker">04 — AI 分析</div>
-      <h2 class="chapter-title" data-split>用 AI 认识自己</h2>
-      <p class="chapter-subtitle">选择一个 AI 平台，上传聊天记录，配合提示词深度了解自己</p>
-      
-      <div class="ai-grid">
-        <a href="https://www.doubao.com" class="ai-card" target="_blank" rel="noopener">
-          <div class="ai-card-icon" style="background:linear-gradient(135deg,#4f46e5,#7c3aed)">豆</div>
-          <div class="ai-card-name">豆包</div>
-          <div class="ai-card-url">doubao.com</div>
-        </a>
-        <a href="https://kimi.moonshot.cn" class="ai-card" target="_blank" rel="noopener">
-          <div class="ai-card-icon" style="background:linear-gradient(135deg,#2563eb,#3b82f6)">K</div>
-          <div class="ai-card-name">Kimi</div>
-          <div class="ai-card-url">kimi.moonshot.cn</div>
-        </a>
-        <a href="https://tongyi.aliyun.com" class="ai-card" target="_blank" rel="noopener">
-          <div class="ai-card-icon" style="background:linear-gradient(135deg,#059669,#10b981)">通</div>
-          <div class="ai-card-name">通义千问</div>
-          <div class="ai-card-url">tongyi.aliyun.com</div>
-        </a>
-        <a href="https://yuanbao.tencent.com" class="ai-card" target="_blank" rel="noopener">
-          <div class="ai-card-icon" style="background:linear-gradient(135deg,#0891b2,#06b6d4)">元</div>
-          <div class="ai-card-name">腾讯元宝</div>
-          <div class="ai-card-url">yuanbao.tencent.com</div>
-        </a>
-      </div>
+<!-- AI -->
+<section class="section" id="ai">
+  <div class="section-inner">
+    <div class="kicker">第四步 · AI 分析</div>
+    <h2 class="section-title">用 AI 探索内心宇宙</h2>
+    <p class="section-sub">上传聊天记录到 AI 平台，用提示词深度了解自己。</p>
 
-      <div class="prompt-grid">
-        <div class="prompt-card">
-          <div class="prompt-card-header" onclick="togglePrompt(this.parentElement)">
-            <div>
-              <div class="prompt-card-title">🧠 人格分析</div>
-              <div class="prompt-card-desc">从心理学角度了解自己的性格特征</div>
-            </div>
-            <button class="prompt-toggle-btn">展开</button>
-          </div>
-          <div class="prompt-card-body">
-            <div class="prompt-full" style="display:block">以下是我的微信聊天记录导出文件。请从心理学角度深度分析"我"的性格特征：
-1. MBTI 类型倾向及依据
-2. 说话风格和语言习惯
-3. 情绪管理能力和倾向
-4. 社交模式和行为特点
-5. 可能的优点和缺点
-6. 给自我成长的建设性建议</div>
-            <button class="prompt-copy-btn" onclick="copyPrompt(this)">📋 复制提示词</button>
-          </div>
-        </div>
-        <div class="prompt-card">
-          <div class="prompt-card-header" onclick="togglePrompt(this.parentElement)">
-            <div>
-              <div class="prompt-card-title">💞 关系洞察</div>
-              <div class="prompt-card-desc">分析你和特定联系人的互动模式</div>
-            </div>
-            <button class="prompt-toggle-btn">展开</button>
-          </div>
-          <div class="prompt-card-body">
-            <div class="prompt-full" style="display:block">分析和"某联系人"的聊天记录，从对话中分析两者的关系动态：
-1. 谁更主动发起对话
-2. 话题分布和共同兴趣
-3. 情绪支持是否平衡
-4. 沟通模式问题
-5. 关系健康度评估
-6. 改善或维持建议</div>
-            <button class="prompt-copy-btn" onclick="copyPrompt(this)">📋 复制提示词</button>
-          </div>
-        </div>
-        <div class="prompt-card">
-          <div class="prompt-card-header" onclick="togglePrompt(this.parentElement)">
-            <div>
-              <div class="prompt-card-title">📊 年度总结</div>
-              <div class="prompt-card-desc">用数据说话，生成年度聊天报告</div>
-            </div>
-            <button class="prompt-toggle-btn">展开</button>
-          </div>
-          <div class="prompt-card-body">
-            <div class="prompt-full" style="display:block">根据聊天记录生成年度社交报告：
-1. 总消息数、日均消息量
-2. 最活跃时段
-3. 最常联系的 5 个人
-4. 情绪变化趋势
-5. 年度关键词
-6. 特殊记忆点</div>
-            <button class="prompt-copy-btn" onclick="copyPrompt(this)">📋 复制提示词</button>
-          </div>
-        </div>
-        <div class="prompt-card">
-          <div class="prompt-card-header" onclick="togglePrompt(this.parentElement)">
-            <div>
-              <div class="prompt-card-title">💼 职场分析</div>
-              <div class="prompt-card-desc">从工作群聊分析自己的职场表现</div>
-            </div>
-            <button class="prompt-toggle-btn">展开</button>
-          </div>
-          <div class="prompt-card-body">
-            <div class="prompt-full" style="display:block">分析工作群聊记录，评估我的职场表现：
-1. 沟通效率
-2. 主动性和专业性
-3. 团队角色分析
-4. 改进建议</div>
-            <button class="prompt-copy-btn" onclick="copyPrompt(this)">📋 复制提示词</button>
-          </div>
-        </div>
-      </div>
+    <div class="ai-grid">
+      <a href="https://www.doubao.com" class="ai-card" target="_blank" rel="noopener">
+        <div class="ai-card-icon" style="background:linear-gradient(135deg,#4f46e5,#7c3aed)">豆</div>
+        <div class="ai-card-name">豆包</div>
+        <div class="ai-card-url">doubao.com</div>
+      </a>
+      <a href="https://kimi.moonshot.cn" class="ai-card" target="_blank" rel="noopener">
+        <div class="ai-card-icon" style="background:linear-gradient(135deg,#2563eb,#3b82f6)">K</div>
+        <div class="ai-card-name">Kimi</div>
+        <div class="ai-card-url">kimi.moonshot.cn</div>
+      </a>
+      <a href="https://tongyi.aliyun.com" class="ai-card" target="_blank" rel="noopener">
+        <div class="ai-card-icon" style="background:linear-gradient(135deg,#059669,#10b981)">通</div>
+        <div class="ai-card-name">通义千问</div>
+        <div class="ai-card-url">tongyi.aliyun.com</div>
+      </a>
+      <a href="https://yuanbao.tencent.com" class="ai-card" target="_blank" rel="noopener">
+        <div class="ai-card-icon" style="background:linear-gradient(135deg,#0891b2,#06b6d4)">元</div>
+        <div class="ai-card-name">腾讯元宝</div>
+        <div class="ai-card-url">yuanbao.tencent.com</div>
+      </a>
     </div>
   </div>
 </section>
 
-<!-- Section 5: FAQ -->
-<section class="chapter" data-section="5" id="s5">
-  <div class="chapter__pin">
-    <div class="chapter__inner">
-      <div class="kicker">05 — 常见问题</div>
-      <h2 class="chapter-title" data-split>FAQ</h2>
-      
-      <div class="faq-grid">
-        <div class="faq-item">
-          <div class="faq-question" onclick="toggleFaq(this.parentElement)">
-            <span>下载链接打不开怎么办？</span>
-            <span class="faq-icon">▼</span>
-          </div>
-          <div class="faq-answer">我们已经添加了国内加速代理（ghfast.top）。如果仍有问题，请刷新页面或更换网络环境。也可直接访问 GitHub Releases 页面手动下载。</div>
+<!-- FAQ -->
+<section class="section" id="faq">
+  <div class="section-inner">
+    <div class="kicker">常见问题</div>
+    <h2 class="section-title">FAQ</h2>
+
+    <div class="faq-grid">
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this.parentElement)">
+          <span>下载链接打不开怎么办？</span>
+          <span class="faq-icon">▼</span>
         </div>
-        <div class="faq-item">
-          <div class="faq-question" onclick="toggleFaq(this.parentElement)">
-            <span>工具安全吗？会泄露隐私吗？</span>
-            <span class="faq-icon">▼</span>
-          </div>
-          <div class="faq-answer">完全安全。两款工具均为开源项目，代码公开可查。完全离线运行，聊天记录不上传任何服务器，只留在你的电脑上。</div>
+        <div class="faq-a">已添加国内加速代理（ghfast.top）。如果仍然有问题，请刷新页面或更换网络环境。也可直接访问 GitHub Releases 页面手动下载。</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this.parentElement)">
+          <span>工具安全吗？会泄露隐私吗？</span>
+          <span class="faq-icon">▼</span>
         </div>
-        <div class="faq-item">
-          <div class="faq-question" onclick="toggleFaq(this.parentElement)">
-            <span>解密后是什么格式？</span>
-            <span class="faq-icon">▼</span>
-          </div>
-          <div class="faq-answer">可导出为 TXT 纯文本格式，也可用内置查看器直接浏览。可复制粘贴到任何 AI 工具中进行分析。</div>
+        <div class="faq-a">完全安全。两款工具都是开源项目，代码公开可查。完全离线运行，聊天记录不上传任何服务器，只留在你的电脑上。</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this.parentElement)">
+          <span>解密后是什么格式？</span>
+          <span class="faq-icon">▼</span>
         </div>
-        <div class="faq-item">
-          <div class="faq-question" onclick="toggleFaq(this.parentElement)">
-            <span>支持 Mac / Linux 吗？</span>
-            <span class="faq-icon">▼</span>
-          </div>
-          <div class="faq-answer">目前主要支持 Windows。Mac 用户可尝试 Wine 运行，或寻找其他跨平台替代工具。</div>
+        <div class="faq-a">可导出为 TXT 纯文本格式，也可用内置查看器直接浏览。可复制粘贴到任何 AI 工具中分析。</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this.parentElement)">
+          <span>微信更新后还能用吗？</span>
+          <span class="faq-icon">▼</span>
         </div>
-        <div class="faq-item">
-          <div class="faq-question" onclick="toggleFaq(this.parentElement)">
-            <span>微信更新后还能用吗？</span>
-            <span class="faq-icon">▼</span>
-          </div>
-          <div class="faq-answer">WeChatDataAnalysis v1.9.1 已适配最新微信版本。如果遇到问题，关注 GitHub 项目更新。</div>
-        </div>
+        <div class="faq-a">WeChatDataAnalysis v1.9.1 已适配最新微信版本。如果遇到问题，关注 GitHub 项目更新。</div>
       </div>
     </div>
   </div>
@@ -1405,94 +1303,34 @@ body {
 <!-- Footer -->
 <footer class="footer">
   <div class="footer-inner">
-    <div class="footer-text"><span class="star">★</span> 星野出品</div>
+    <div class="footer-text"><span class="star">✦</span> 星野出品</div>
   </div>
 </footer>
 
-<!-- Three.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-
 <script>
-// ── Three.js Particle Background ──
+// ── Starfield Generator ──
 (function() {
-  const canvas = document.getElementById('bg-canvas');
-  const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-  const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-
-  // Particles
-  const geometry = new THREE.BufferGeometry();
-  const count = 800;
-  const positions = new Float32Array(count * 3);
-  const sizes = new Float32Array(count);
-  
-  for (let i = 0; i < count; i++) {
-    positions[i*3] = (Math.random() - 0.5) * 20;
-    positions[i*3+1] = (Math.random() - 0.5) * 20;
-    positions[i*3+2] = (Math.random() - 0.5) * 10 - 5;
-    sizes[i] = Math.random() * 2 + 0.5;
+  const starfield = document.getElementById('starfield');
+  for (let i = 0; i < 300; i++) {
+    const star = document.createElement('div');
+    star.className = 'star';
+    const size = Math.random() * 2.5 + 0.5;
+    star.style.cssText = `
+      width:${size}px; height:${size}px;
+      left:${Math.random() * 100}%;
+      top:${Math.random() * 100}%;
+      --duration:${Math.random() * 3 + 2}s;
+      animation-delay:${Math.random() * 3}s;
+      background: ${Math.random() > 0.7 ? '#FFE4A0' : Math.random() > 0.4 ? '#fff' : '#AACCFF'};
+    `;
+    starfield.appendChild(star);
   }
-  
-  geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-  geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
-
-  const material = new THREE.PointsMaterial({
-    color: 0xE32B16,
-    size: 0.04,
-    transparent: true,
-    opacity: 0.4,
-    blending: THREE.AdditiveBlending,
-    sizeAttenuation: true,
-  });
-
-  const particles = new THREE.Points(geometry, material);
-  scene.add(particles);
-  camera.position.z = 5;
-
-  // Mouse tracking for parallax
-  let mouseX = 0, mouseY = 0;
-  document.addEventListener('mousemove', (e) => {
-    mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
-    mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
-  });
-
-  // Scroll tracking
-  let scrollY = 0;
-  window.addEventListener('scroll', () => {
-    scrollY = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight);
-  });
-
-  function animate() {
-    requestAnimationFrame(animate);
-    
-    particles.rotation.y += 0.0005;
-    particles.rotation.x += 0.0003;
-    
-    // Parallax
-    particles.rotation.x += (mouseY * 0.02 - particles.rotation.x) * 0.02;
-    particles.rotation.y += (mouseX * 0.02 - particles.rotation.y) * 0.02;
-    
-    // Scroll effect - particles move up
-    particles.position.y = -scrollY * 3;
-    
-    renderer.render(scene, camera);
-  }
-  animate();
-
-  window.addEventListener('resize', () => {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-  });
 })();
 
 // ── Scroll Progress ──
 window.addEventListener('scroll', () => {
-  const scrollTop = window.scrollY;
-  const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-  document.getElementById('progress').style.width = (scrollTop / docHeight * 100) + '%';
+  const p = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight);
+  document.getElementById('progress').style.width = (p * 100) + '%';
 });
 
 // ── Nav ──
@@ -1501,169 +1339,74 @@ window.addEventListener('scroll', () => {
   nav.classList.toggle('visible', window.scrollY > 200);
 });
 
-// ── Section Number ──
-const sections = document.querySelectorAll('[data-section]');
+// ── Section Tracking ──
+const sections = ['hero','flow','tools','key','decrypt','ai','faq'];
 const sectionNum = document.getElementById('sectionNum');
 const sideDots = document.querySelectorAll('.side-dot');
 
 function updateSection() {
-  const scrollY = window.scrollY + window.innerHeight * 0.3;
-  let activeSection = 0;
-  
-  sections.forEach((section, i) => {
-    const top = section.offsetTop;
-    const bottom = top + section.offsetHeight;
-    if (scrollY >= top && scrollY < bottom) {
-      activeSection = i;
+  const sy = window.scrollY + window.innerHeight * 0.3;
+  let active = 0;
+  sections.forEach((id, i) => {
+    const el = document.getElementById(id);
+    if (el) {
+      const t = el.offsetTop, b = t + el.offsetHeight;
+      if (sy >= t && sy < b) active = i;
     }
   });
-  
-  sectionNum.textContent = String(activeSection).padStart(2, '0');
-  
-  sideDots.forEach((dot, i) => {
-    dot.classList.toggle('active', i === activeSection);
-  });
+  sectionNum.textContent = String(active).padStart(2, '0');
+  sideDots.forEach((d, i) => d.classList.toggle('active', i === active));
 }
-
 window.addEventListener('scroll', updateSection);
 
 // ── Side Nav ──
-sideDots.forEach(dot => {
-  dot.addEventListener('click', () => {
-    const target = document.getElementById(dot.dataset.target);
-    if (target) target.scrollIntoView({ behavior: 'smooth' });
+sideDots.forEach(d => {
+  d.addEventListener('click', () => {
+    const el = document.getElementById(d.dataset.target);
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
   });
 });
 
-// ── Char Split Animation ──
-function splitChars() {
-  document.querySelectorAll('[data-split]').forEach(el => {
-    const text = el.textContent;
-    el.innerHTML = '';
-    text.split('').forEach(char => {
-      const span = document.createElement('span');
-      span.className = 'char';
-      span.textContent = char === ' ' ? '\u00A0' : char;
-      el.appendChild(span);
-    });
-  });
-}
-splitChars();
+// ── FAQ ──
+function toggleFaq(el) { el.classList.toggle('open'); }
 
-// ── Kicker & Char Observer ──
-const charObserver = new IntersectionObserver((entries) => {
-  entries.forEach(entry => {
-    if (entry.isIntersecting) {
-      const delay = Array.from(entry.target.parentElement.children).indexOf(entry.target) * 30;
-      setTimeout(() => entry.target.classList.add('visible'), delay);
-    }
-  });
-}, { threshold: 0.5 });
+// ── Demo 1 ──
+const d1 = document.getElementById('demoBtn1');
+const k1 = document.getElementById('demoKey1');
+const s1 = document.getElementById('demoSteps1').querySelectorAll('.demo-step-item');
+let r1 = false;
 
-document.querySelectorAll('.char').forEach(el => charObserver.observe(el));
-
-// ── Kicker Observer ──
-const kickerObserver = new IntersectionObserver((entries) => {
-  entries.forEach(entry => {
-    if (entry.isIntersecting) entry.target.classList.add('visible');
-  });
-}, { threshold: 0.5 });
-
-document.querySelectorAll('.kicker').forEach(el => kickerObserver.observe(el));
-
-// ── Tilt Card Effect ──
-document.querySelectorAll('.tilt-card').forEach(card => {
-  card.addEventListener('mousemove', (e) => {
-    const rect = card.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / rect.width - 0.5;
-    const y = (e.clientY - rect.top) / rect.height - 0.5;
-    card.querySelector('.tilt-card-inner').style.transform = 
-      `perspective(1200px) rotateY(${x * 8}deg) rotateX(${-y * 8}deg)`;
-  });
-  card.addEventListener('mouseleave', () => {
-    card.querySelector('.tilt-card-inner').style.transform = 'none';
-  });
-});
-
-// ── Toggle Prompt ──
-function togglePrompt(card) {
-  card.classList.toggle('open');
-  const btn = card.querySelector('.prompt-toggle-btn');
-  btn.textContent = card.classList.contains('open') ? '收起' : '展开';
-}
-
-// ── Copy Prompt ──
-function copyPrompt(btn) {
-  const text = btn.parentElement.querySelector('.prompt-full').textContent.trim();
-  navigator.clipboard.writeText(text).then(() => {
-    btn.textContent = '✓ 已复制';
-    btn.classList.add('copied');
-    setTimeout(() => {
-      btn.textContent = '📋 复制提示词';
-      btn.classList.remove('copied');
-    }, 2000);
-  });
-}
-
-// ── Toggle FAQ ──
-function toggleFaq(item) {
-  item.classList.toggle('open');
-}
-
-// ── Demo Animation 1 ──
-const demoBtn1 = document.getElementById('demoBtn1');
-const demoKey1 = document.getElementById('demoKey1');
-const demoSteps1 = document.getElementById('demoSteps1');
-let demo1Running = false;
-
-demoBtn1.addEventListener('click', () => {
-  if (demo1Running) return;
-  demo1Running = true;
-  
-  const steps = demoSteps1.querySelectorAll('.demo-step');
-  steps.forEach(s => { s.classList.remove('active', 'done'); });
-  demoKey1.classList.remove('show');
-  demoBtn1.textContent = '⏳ 正在提取...';
-  demoBtn1.classList.remove('animate');
-
+d1.addEventListener('click', () => {
+  if (r1) return;
+  r1 = true;
+  s1.forEach(s => { s.classList.remove('active','done'); });
+  k1.classList.remove('show');
+  d1.textContent = '⏳ 提取中...';
+  d1.classList.remove('pulse');
   let i = 0;
   const t = setInterval(() => {
-    if (i > 0) { steps[i-1].classList.remove('active'); steps[i-1].classList.add('done'); }
-    if (i < steps.length) { steps[i].classList.add('active'); i++; }
-    else {
-      clearInterval(t);
-      demoKey1.classList.add('show');
-      demoBtn1.textContent = '🔄 重新演示';
-      demoBtn1.classList.add('animate');
-      demo1Running = false;
-    }
-  }, 700);
+    if (i > 0) { s1[i-1].classList.remove('active'); s1[i-1].classList.add('done'); }
+    if (i < s1.length) { s1[i].classList.add('active'); i++; }
+    else { clearInterval(t); k1.classList.add('show'); d1.textContent = '🔄 重新演示'; d1.classList.add('pulse'); r1 = false; }
+  }, 600);
 });
 
-// ── Demo Animation 2 ──
-const demoBtn2 = document.getElementById('demoBtn2');
-const demoSteps2 = document.getElementById('demoSteps2');
-let demo2Running = false;
+// ── Demo 2 ──
+const d2 = document.getElementById('demoBtn2');
+const s2 = document.getElementById('demoSteps2').querySelectorAll('.demo-step-item');
+let r2 = false;
 
-demoBtn2.addEventListener('click', () => {
-  if (demo2Running) return;
-  demo2Running = true;
-  
-  const steps = demoSteps2.querySelectorAll('.demo-step');
-  steps.forEach(s => { s.classList.remove('active', 'done'); });
-  demoBtn2.textContent = '⏳ 解密中...';
-  demoBtn2.classList.remove('animate');
-
+d2.addEventListener('click', () => {
+  if (r2) return;
+  r2 = true;
+  s2.forEach(s => { s.classList.remove('active','done'); });
+  d2.textContent = '⏳ 解密中...';
+  d2.classList.remove('pulse');
   let i = 0;
   const t = setInterval(() => {
-    if (i > 0) { steps[i-1].classList.remove('active'); steps[i-1].classList.add('done'); }
-    if (i < steps.length) { steps[i].classList.add('active'); i++; }
-    else {
-      clearInterval(t);
-      demoBtn2.textContent = '🔄 重新演示';
-      demoBtn2.classList.add('animate');
-      demo2Running = false;
-    }
+    if (i > 0) { s2[i-1].classList.remove('active'); s2[i-1].classList.add('done'); }
+    if (i < s2.length) { s2[i].classList.add('active'); i++; }
+    else { clearInterval(t); d2.textContent = '🔄 重新演示'; d2.classList.add('pulse'); r2 = false; }
   }, 600);
 });
 </script>
