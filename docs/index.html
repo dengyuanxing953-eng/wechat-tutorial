@@ -831,9 +831,10 @@ body {
     </div>
 
     <div class="download-tips">
-      <strong>💡 下载提示：</strong>
-      WeChatDataAnalysis 约 99MB，下载需要一点时间<br>
-      下载后解压 ZIP / 安装 EXE 即可使用，无需注册或付费
+      <strong>💡 下载提示：</strong><br>
+      • WeChatDataAnalysis 约 99MB（v1.8.1 只有 68MB，新版功能更多所以体积大了），下载可能需要 2-5 分钟<br>
+      • 下载后解压 ZIP / 安装 EXE 即可使用，无需注册或付费<br>
+      • <strong>浏览器报"病毒"或"不安全"是误报</strong> — 因为这两个是开源工具，没有买微软的代码签名证书（每年几千块），Windows Defender 和 Chrome 会对无签名的 .exe 弹警告。两个项目在 GitHub 上合计 <strong>3000+ 星标</strong>、<strong>15000+ 次下载</strong>，代码完全公开，社区验证过是安全的。
     </div>
 
     <div class="demo-box">
@@ -1035,6 +1036,20 @@ body {
         <div class="faq-a">
           完全安全。两款工具都是开源项目，源代码公开可查。<br>
           <strong>关键：它们完全离线运行。</strong>你的聊天数据不需要上传到任何服务器，解密和导出全部在你自己电脑上完成。第三方无法获取你的任何数据。
+        </div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this.parentElement)">
+          <span>下载时浏览器报"病毒"或"不安全"怎么办？</span>
+          <span class="faq-icon">▼</span>
+        </div>
+        <div class="faq-a">
+          <strong>这是误报，不是真病毒。</strong><br>
+          原因是这两个工具是个人开发者做的开源项目，没有买微软的代码签名证书（每年几千块）。Windows Defender、Chrome、Edge 会对"未签名"的 .exe 弹警告，但这不是检测到病毒，只是"发布者未知"。<br><br>
+          验证安全的方法：<br>
+          1. 两个项目在 GitHub 上代码完全公开，可以自己查看<br>
+          2. wx_key 累计 <strong>15000+</strong> 次下载，零安全投诉<br>
+          3. 如果还是不放心，下载后用 VirusTotal 在线扫描验证
         </div>
       </div>
       <div class="faq-item">
