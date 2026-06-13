@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 智能体安装教程 · 30 分钟</title>
+<meta name="description" content="30 分钟，从零安装 Cursor + Claude Code，拥有你的 AI 编程助手。不会写代码，也行。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🤖</text></svg>">
+<style>
+:root {
+  --bg: #050508;
+  --bg-card: #0d0d14;
+  --ink: #f0f0f5;
+  --ink-2: #a0a0b0;
+  --ink-3: #606070;
+  --accent: #4A90D9;
+  --accent-gold: #F0B060;
+  --success: #5BAA6A;
+  --line: rgba(255,255,255,.07);
+  --mono: "JetBrains Mono", "SF Mono", "Fira Code", ui-monospace, SFMono-Regular, Consolas, monospace;
+  --sans: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  background: radial-gradient(1200px 700px at 50% 25%, rgba(74,144,217,.06), transparent 70%),
+              radial-gradient(800px 500px at 80% 70%, rgba(240,176,96,.04), transparent 60%),
+              var(--bg);
+  color: var(--ink);
+  font-family: var(--sans);
+  overflow: hidden;
+}
+::selection { background: rgba(74,144,217,.35); }
+
+/* ── progress ── */
+#bar {
+  position: fixed; top: 0; left: 0; z-index: 10;
+  height: 2px; width: 0;
+  background: linear-gradient(90deg, var(--accent), var(--accent-gold));
+  transition: width .5s cubic-bezier(.16,1,.3,1);
+}
+#count {
+  position: fixed; bottom: 26px; left: 28px; z-index: 10;
+  font-family: var(--mono); font-size: 12px; color: var(--ink-3);
+  letter-spacing: .1em;
+}
+#key-hint {
+  position: fixed; bottom: 26px; right: 28px; z-index: 10;
+  font-family: var(--mono); font-size: 12px; color: var(--ink-3);
+}
+@media (max-width: 640px), (pointer: coarse) { #key-hint { display: none; } }
+
+/* ── deck ── */
+#deck { position: fixed; inset: 0; }
+.slide {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  text-align: center;
+  padding: 48px 24px 90px;
+  overflow-y: auto;
+  opacity: 0;
+  transform: translateY(36px);
+  transition: opacity .55s cubic-bezier(.16,1,.3,1), transform .55s cubic-bezier(.16,1,.3,1);
+  pointer-events: none;
+  visibility: hidden;
+}
+.slide.active { opacity: 1; transform: none; pointer-events: auto; visibility: visible; }
+.slide.past { transform: translateY(-36px); }
+.inner { max-width: 640px; width: 100%; margin: auto; }
+
+/* ── type ── */
+.step-no {
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--accent);
+  letter-spacing: .3em;
+  margin-bottom: 26px;
+}
+h1 {
+  font-size: clamp(30px, 5.6vw, 50px);
+  line-height: 1.35;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.nowrap { white-space: nowrap; }
+h2 {
+  font-size: clamp(24px, 5vw, 38px);
+  line-height: 1.4;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 18px;
+}
+.sub { color: var(--ink-2); font-size: clamp(15px, 2.5vw, 18px); margin-top: 18px; line-height: 1.9; }
+.body { color: var(--ink-2); font-size: 15.5px; line-height: 2; margin-bottom: 8px; }
+.body strong { color: var(--ink); }
+.body a { color: var(--accent); text-decoration: none; border-bottom: 1px solid rgba(74,144,217,.3); }
+.body a:hover { border-color: var(--accent); }
+.caret {
+  display: inline-block; width: .5em; height: .9em;
+  background: var(--accent-gold);
+  margin-left: 10px; vertical-align: -2px;
+  animation: blink 1.1s steps(1) infinite;
+}
+@keyframes blink { 50% { opacity: 0; } }
+
+/* ── command block ── */
+.cmd {
+  position: relative;
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 18px 92px 18px 22px;
+  margin: 22px auto 0;
+  font-family: var(--mono);
+  font-size: clamp(13px, 2.2vw, 15px);
+  text-align: left;
+  word-break: break-all;
+  line-height: 1.8;
+  max-width: 560px;
+}
+.cmd::before { content: "$ "; color: var(--ink-3); }
+.cmd.say::before { content: "» "; color: var(--accent-gold); }
+.cmd .os {
+  position: absolute; top: -9px; left: 16px;
+  font-size: 10.5px; letter-spacing: .15em;
+  color: var(--accent);
+  background: var(--bg);
+  padding: 0 8px;
+}
+.copy {
+  position: absolute; top: 50%; right: 12px; transform: translateY(-50%);
+  font-family: var(--mono); font-size: 12px;
+  background: transparent; color: var(--ink-2);
+  border: 1px solid rgba(255,255,255,.16); border-radius: 7px;
+  padding: 5px 13px; cursor: pointer;
+  transition: color .15s, border-color .15s;
+}
+.copy:hover { color: var(--accent-gold); border-color: var(--accent-gold); }
+.copy.ok { color: var(--bg); background: var(--accent-gold); border-color: var(--accent-gold); }
+
+.if {
+  font-size: 13px; color: var(--ink-2);
+  margin-top: 16px; line-height: 1.9;
+}
+.if a { color: var(--accent); text-decoration: none; border-bottom: 1px solid rgba(74,144,217,.3); }
+.if a:hover { border-color: var(--accent); }
+
+/* ── provider cards ── */
+.providers {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 22px auto 0;
+  max-width: 560px;
+}
+.provider-card {
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 16px;
+  cursor: pointer;
+  transition: border-color .2s, transform .15s;
+  text-align: left;
+}
+.provider-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+.provider-card.selected { border-color: var(--accent-gold); background: rgba(240,176,96,.06); }
+.provider-card .name { font-weight: 700; font-size: 16px; margin-bottom: 4px; }
+.provider-card .desc { font-size: 12.5px; color: var(--ink-2); line-height: 1.6; }
+.provider-card .price { font-family: var(--mono); font-size: 11px; color: var(--accent-gold); margin-top: 6px; }
+
+/* ── rules box ── */
+.rules-box {
+  position: relative;
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 18px 92px 18px 22px;
+  margin: 22px auto 0;
+  font-family: var(--mono);
+  font-size: 13px;
+  text-align: left;
+  line-height: 1.8;
+  max-width: 560px;
+  max-height: 200px;
+  overflow-y: auto;
+  color: var(--ink-2);
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+.rules-box::-webkit-scrollbar { width: 4px; }
+.rules-box::-webkit-scrollbar-thumb { background: var(--ink-3); border-radius: 2px; }
+
+/* ── controls ── */
+.next {
+  display: inline-block;
+  margin-top: 40px;
+  background: linear-gradient(135deg, var(--accent), #3a7bc8);
+  color: #fff;
+  font-weight: 600;
+  font-size: 15px;
+  font-family: inherit;
+  padding: 14px 42px;
+  border: none; border-radius: 999px;
+  cursor: pointer;
+  transition: transform .15s, filter .15s;
+}
+.next:hover { filter: brightness(1.12); transform: translateY(-1px); }
+.next:active { transform: scale(.97); }
+.back {
+  position: fixed; top: 22px; left: 24px; z-index: 10;
+  background: none; border: none;
+  font-family: var(--mono); font-size: 12.5px;
+  color: var(--ink-3); cursor: pointer;
+  padding: 6px 10px;
+  opacity: 0; pointer-events: none;
+  transition: opacity .3s, color .15s;
+}
+.back:hover { color: var(--ink-2); }
+body[data-step]:not([data-step="0"]) .back { opacity: 1; pointer-events: auto; }
+.foot-link {
+  display: block;
+  margin-top: 30px;
+  font-size: 13px;
+  color: var(--ink-3);
+  text-decoration: none;
+}
+.foot-link:hover { color: var(--ink-2); }
+.foot-link b { color: var(--accent); font-weight: 500; }
+
+/* ── finale ── */
+.omt {
+  font-family: var(--mono);
+  font-size: 13px;
+  letter-spacing: .35em;
+  color: var(--accent-gold);
+  margin-bottom: 26px;
+}
+
+/* ── tag ── */
+.tag {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: .1em;
+  color: var(--success);
+  border: 1px solid rgba(91,170,106,.3);
+  border-radius: 6px;
+  padding: 3px 10px;
+  margin-bottom: 20px;
+}
+
+/* ── tip box ── */
+.tip {
+  background: rgba(74,144,217,.08);
+  border-left: 3px solid var(--accent);
+  border-radius: 0 8px 8px 0;
+  padding: 14px 18px;
+  margin: 18px auto 0;
+  max-width: 560px;
+  font-size: 13.5px;
+  color: var(--ink-2);
+  line-height: 1.8;
+  text-align: left;
+}
+.tip strong { color: var(--accent); }
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}
+</style>
+</head>
+<body data-step="0">
+
+<div id="bar" aria-hidden="true"></div>
+<button class="back" id="back">← 上一步</button>
+<div id="count" aria-hidden="true"></div>
+<div id="key-hint" aria-hidden="true">回车 ↵ 继续</div>
+
+<main id="deck">
+
+  <!-- 0 · 开场 -->
+  <section class="slide active">
+    <div class="inner">
+      <div class="tag">FOR BEGINNERS</div>
+      <h1 id="open-line">30 分钟后，<br>你的电脑会有一个<span class="nowrap">AI 编程助手。<span class="caret" aria-hidden="true"></span></span></h1>
+      <p class="sub">不会写代码，也行。<br>跟着走，每一步都有提示。</p>
+      <button class="next" data-next>开始</button>
+      <a class="foot-link" href="index.html">← 回到星野宇宙首页</a>
+    </div>
+  </section>
+
+  <!-- 1 · 下载 Cursor -->
+  <section class="slide">
+    <div class="inner">
+      <p class="step-no">STEP 1 / 6</p>
+      <h2>下载 Cursor</h2>
+      <p class="body">Cursor 是一个带 AI 的代码编辑器，<strong>免费</strong>够用。<br>打开 <a href="https://cursor.com" target="_blank" rel="noopener"><strong>cursor.com</strong></a>，点 Download，安装。</p>
+      <p class="body">Mac 双击 .dmg 拖进应用程序；<br>Windows 双击 .exe 一路下一步。</p>
+      <div class="tip"><strong>💡 装完打开一次</strong>，让它走完初始化。看到欢迎界面就关掉，不用注册。</div>
+      <button class="next" data-next>装好了，下一步</button>
+    </div>
+  </section>
+
+  <!-- 2 · 选 API -->
+  <section class="slide">
+    <div class="inner">
+      <p class="step-no">STEP 2 / 6</p>
+      <h2>选一个 API 服务商</h2>
+      <p class="body">API 就是 AI 的"电费"——你用多少付多少。<br>选一个注册，<strong>充 5~10 块钱</strong>够用很久。</p>
+      <div class="providers" id="providers">
+        <div class="provider-card" data-provider="deepseek">
+          <div class="name">🐋 DeepSeek</div>
+          <div class="desc">最便宜，中文能力强<br>适合日常开发</div>
+          <div class="price">≈ ¥1 / 百万 tokens</div>
+        </div>
+        <div class="provider-card" data-provider="qwen">
+          <div class="name">🔮 通义千问</div>
+          <div class="desc">阿里出品，稳定<br>免费额度大方</div>
+          <div class="price">有免费额度</div>
+        </div>
+        <div class="provider-card" data-provider="kimi">
+          <div class="name">🌙 Kimi</div>
+          <div class="desc">月之暗面，长文本强<br>上下文窗口大</div>
+          <div class="price">≈ ¥4 / 百万 tokens</div>
+        </div>
+        <div class="provider-card" data-provider="mimo">
+          <div class="name">Ⓜ️ MiMo</div>
+          <div class="desc">小米出品，推理强<br>代码能力优秀</div>
+          <div class="price">≈ ¥2 / 百万 tokens</div>
+        </div>
+      </div>
+      <p class="if" style="margin-top:18px;">点击选一个，然后下一步教你注册拿钥匙。</p>
+      <button class="next" data-next>选好了，下一步</button>
+    </div>
+  </section>
+
+  <!-- 3 · 拿 API Key -->
+  <section class="slide">
+    <div class="inner">
+      <p class="step-no">STEP 3 / 6</p>
+      <h2>拿一把钥匙</h2>
+      <p class="body" id="api-instruction">去对应的平台注册，创建 API Key：</p>
+      <div id="api-links">
+        <!-- DeepSeek -->
+        <div class="provider-content" data-for="deepseek" style="display:none;">
+          <p class="body">打开 <a href="https://platform.deepseek.com" target="_blank" rel="noopener"><strong>platform.deepseek.com</strong></a>，手机号注册。</p>
+          <p class="body">进「API Keys」→ 点「创建 API Key」→ <strong>复制</strong>。</p>
+          <div class="tip"><strong>⚠️ 钥匙只显示一次。</strong>复制后立刻粘到备忘录。然后去「充值」充 5 块钱。</div>
+        </div>
+        <!-- Qwen -->
+        <div class="provider-content" data-for="qwen" style="display:none;">
+          <p class="body">打开 <a href="https://dashscope.aliyun.com" target="_blank" rel="noopener"><strong>dashscope.aliyun.com</strong></a>，用支付宝/淘宝登录。</p>
+          <p class="body">进「API-KEY 管理」→ 点「创建」→ <strong>复制</strong>。</p>
+          <div class="tip"><strong>💡 千问有免费额度</strong>，新用户送 100 万 tokens，不用充值就能开始。</div>
+        </div>
+        <!-- Kimi -->
+        <div class="provider-content" data-for="kimi" style="display:none;">
+          <p class="body">打开 <a href="https://platform.moonshot.cn" target="_blank" rel="noopener"><strong>platform.moonshot.cn</strong></a>，手机号注册。</p>
+          <p class="body">进「API Key 管理」→ 点「创建」→ <strong>复制</strong>。</p>
+          <div class="tip"><strong>💡</strong> 新用户有免费额度，先体验再充值。</div>
+        </div>
+        <!-- MiMo -->
+        <div class="provider-content" data-for="mimo" style="display:none;">
+          <p class="body">打开 <a href="https://platform.mimo.xiaomi.com" target="_blank" rel="noopener"><strong>platform.mimo.xiaomi.com</strong></a>，手机号注册。</p>
+          <p class="body">进「API Keys」→ 点「创建」→ <strong>复制</strong>。</p>
+          <div class="tip"><strong>💡 MiMo 推理能力强</strong>，代码任务表现好。新用户有免费额度。</div>
+        </div>
+      </div>
+      <p class="if" id="no-selection-tip">👆 先在上一步选一个服务商，这里才会显示对应的注册指引。</p>
+      <button class="next" data-next>拿到钥匙了，下一步</button>
+    </div>
+  </section>
+
+  <!-- 4 · 配置 API 到 Cursor -->
+  <section class="slide">
+    <div class="inner">
+      <p class="step-no">STEP 4 / 6</p>
+      <h2>把钥匙插进 Cursor</h2>
+      <p class="body">打开 Cursor，按步骤操作：</p>
+      <p class="body"><strong>①</strong> 点右上角齿轮 ⚙️ → <strong>Settings</strong><br>
+      <strong>②</strong> 左侧点 <strong>Models</strong><br>
+      <strong>③</strong> 找到 <strong>OpenAI API Key</strong> 那一栏，点 Configure<br>
+      <strong>④</strong> 粘贴你的 API Key，点 Verify</p>
+      <div id="api-base-url" style="display:none;">
+        <p class="body" style="margin-top:12px;"><strong>⑤</strong> 还需要填 API Base URL：</p>
+        <div class="cmd" id="base-url-cmd">https://api.deepseek.com/v1<button class="copy">复制</button></div>
+      </div>
+      <div class="tip"><strong>💡 为什么用 OpenAI 格式？</strong>国产 API 都兼容 OpenAI 接口，Cursor 原生支持，不用装插件。</div>
+      <button class="next" data-next>配好了，下一步</button>
+    </div>
+  </section>
+
+  <!-- 5 · 配置助手规则 -->
+  <section class="slide">
+    <div class="inner">
+      <p class="step-no">STEP 5 / 6</p>
+      <h2>给你的 AI 助手一份说明书</h2>
+      <p class="body">这一步让 Cursor 变成<strong>你的专属助手</strong>。<br>复制下面的规则，粘进 Cursor：</p>
+      <p class="body"><strong>①</strong> Cursor 左下角齿轮 ⚙️ → <strong>Rules</strong><br>
+      <strong>②</strong> 点 <strong>Add new rule</strong><br>
+      <strong>③</strong> 粘贴下面的内容，保存</p>
+      <div class="rules-box" id="rules-text">你是一个友好的 AI 编程助手。
+
+## 你的职责
+- 帮助零基础用户学习编程和使用 AI 工具
+- 回答用中文，简洁明了，不用专业术语
+- 每次操作前先解释"这是什么"和"为什么要这样做"
+- 遇到报错，先翻译成人话，再给解决方案
+
+## 当用户说"帮我装 Claude Code"
+1. 先确认用户的系统（Windows / Mac）
+2. Windows 用户：用 winget install Anthropic.ClaudeCode 安装
+3. Mac 用户：用 brew install --cask claude-code@latest 安装
+4. 装完后帮用户验证：运行 claude --version
+5. 告诉用户怎么启动：终端输入 claude 回车
+
+## 代码风格
+- 写完代码要解释每一行在干什么
+- 优先用最简单的方案
+- 出错不要慌，一步步排查<button class="copy">复制</button></div>
+      <button class="next" data-next>粘好了，下一步</button>
+    </div>
+  </section>
+
+  <!-- 6 · 安装 Claude Code -->
+  <section class="slide">
+    <div class="inner">
+      <p class="step-no">STEP 6 / 6</p>
+      <h2>让 AI 帮你装 Claude Code</h2>
+      <p class="body">在 Cursor 里打开 <strong>Composer</strong>（快捷键 <strong>Ctrl+I</strong> 或 <strong>Cmd+I</strong>），<br>把下面这句话粘进去，回车：</p>
+      <div class="cmd say">帮我安装 Claude Code，我是 Windows/Mac 用户，装完帮我验证一下<button class="copy">复制</button></div>
+      <p class="body" style="margin-top:16px;">AI 会自动帮你执行安装命令。<br>过程中如果弹出权限提示，点<strong>允许</strong>。</p>
+      <div class="tip"><strong>💡 装完之后</strong>，打开终端（Windows: PowerShell，Mac: 终端），输入 <code>claude</code> 回车，看到欢迎界面就成功了！</div>
+      <button class="next" data-next>它活了！</button>
+    </div>
+  </section>
+
+  <!-- 7 · 完成 -->
+  <section class="slide">
+    <div class="inner">
+      <div class="omt">CONGRATULATIONS</div>
+      <h1 style="font-size:clamp(28px,5.5vw,44px);">你现在有两个 AI 助手了。</h1>
+      <p class="sub"><strong>Cursor</strong>：写代码时用，可视化界面，所见即所得。<br><strong>Claude Code</strong>：终端里用，更强大，能自己改文件、跑命令。</p>
+      <p class="sub" style="margin-top:24px;">想让它真正听你的话？试试在 Claude Code 里输入：</p>
+      <div class="cmd say">帮我做一个自我介绍网页，用 HTML，做完告诉我文件在哪里<button class="copy">复制</button></div>
+      <p class="sub" style="font-size:14px; margin-top:30px;">—— 星野宇宙 · 让每个人都用上 AI</p>
+      <a class="foot-link" href="index.html">← 回到星野宇宙首页</a>
+    </div>
+  </section>
+
+</main>
+
+<script>
+(function () {
+  const slides = [...document.querySelectorAll('.slide')];
+  const total = slides.length;
+  const bar = document.getElementById('bar');
+  const count = document.getElementById('count');
+  let i = 0;
+  let selectedProvider = null;
+
+  function go(n) {
+    if (n < 0 || n >= total || n === i) return;
+    slides[i].classList.remove('active');
+    slides[i].classList.toggle('past', n > i);
+    slides[n].classList.remove('past');
+    slides[n].classList.add('active');
+    i = n;
+    document.body.dataset.step = i;
+    bar.style.width = (i / (total - 1) * 100) + '%';
+    count.textContent = String(i).padStart(2, '0') + ' / ' + String(total - 1).padStart(2, '0');
+    slides[i].scrollTop = 0;
+
+    // Update provider-specific content when entering step 3 or 4
+    if (i === 3 || i === 4) updateProviderContent();
+  }
+  count.textContent = '00 / ' + String(total - 1).padStart(2, '0');
+
+  document.querySelectorAll('[data-next]').forEach(b => b.addEventListener('click', () => go(i + 1)));
+  document.getElementById('back').addEventListener('click', () => go(i - 1));
+  addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === 'ArrowDown' || e.key === 'ArrowRight') { e.preventDefault(); go(i + 1); }
+    if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') { e.preventDefault(); go(i - 1); }
+  });
+
+  // Copy buttons
+  document.querySelectorAll('.copy').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      // For rules box, copy the whole text content
+      if (btn.parentElement.classList.contains('rules-box')) {
+        const text = btn.parentElement.textContent.replace('复制', '').replace('已复制', '').trim();
+        navigator.clipboard.writeText(text).then(() => {
+          btn.textContent = '已复制';
+          btn.classList.add('ok');
+          setTimeout(() => { btn.textContent = '复制'; btn.classList.remove('ok'); }, 1600);
+        });
+        return;
+      }
+      const node = btn.parentElement.childNodes;
+      let text = '';
+      node.forEach(n => { if (n.nodeType === 3) text += n.textContent; });
+      navigator.clipboard.writeText(text.trim()).then(() => {
+        btn.textContent = '已复制';
+        btn.classList.add('ok');
+        setTimeout(() => { btn.textContent = '复制'; btn.classList.remove('ok'); }, 1600);
+      });
+    });
+  });
+
+  // Provider selection
+  document.querySelectorAll('.provider-card').forEach(card => {
+    card.addEventListener('click', () => {
+      document.querySelectorAll('.provider-card').forEach(c => c.classList.remove('selected'));
+      card.classList.add('selected');
+      selectedProvider = card.dataset.provider;
+      updateProviderContent();
+    });
+  });
+
+  function updateProviderContent() {
+    // Update step 3 content
+    document.querySelectorAll('.provider-content').forEach(el => {
+      el.style.display = el.dataset.for === selectedProvider ? 'block' : 'none';
+    });
+    const noTip = document.getElementById('no-selection-tip');
+    if (noTip) noTip.style.display = selectedProvider ? 'none' : 'block';
+
+    // Update step 4 base URL
+    const baseUrlDiv = document.getElementById('api-base-url');
+    const baseUrlCmd = document.getElementById('base-url-cmd');
+    if (selectedProvider && baseUrlDiv) {
+      baseUrlDiv.style.display = 'block';
+      const urls = {
+        deepseek: 'https://api.deepseek.com/v1',
+        qwen: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
+        kimi: 'https://api.moonshot.cn/v1',
+        mimo: 'https://api.xiaomimimo.com/v1'
+      };
+      baseUrlCmd.firstChild.textContent = urls[selectedProvider] || '';
+    }
+  }
+})();
+</script>
+
+</body>
+</html>
