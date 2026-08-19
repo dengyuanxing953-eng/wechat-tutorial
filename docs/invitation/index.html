@@ -619,29 +619,12 @@
     .map-copy:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0 rgba(3,29,55,.22); }
     .map-status { position: relative; z-index: 1; min-height: 18px; margin-top: 10px !important; color: #ccefff !important; }
 
-    .rsvp-card { position: relative; margin-top: 42px; padding: 27px 20px 23px; background: #fffdf8; border: 1px solid rgba(16,34,56,.14); box-shadow: 8px 8px 0 rgba(228,0,127,.1); }
-    .rsvp-card::before { content: "RSVP"; position: absolute; right: 14px; top: 10px; color: rgba(0,91,172,.08); font-family: var(--font-code); font-size: 44px; font-weight: 800; letter-spacing: -.04em; }
-    .rsvp-card > small { position: relative; display: block; color: var(--pink); font-family: var(--font-code); font-size: 9px; font-weight: 700; letter-spacing: .2em; }
-    .rsvp-card h3 { position: relative; margin: 9px 0 5px; font-family: var(--font-title); font-size: 25px; font-weight: 600; }
-    .rsvp-intro { margin: 0 0 20px; color: var(--muted); font-size: 12px; line-height: 1.8; }
-    .rsvp-label { display: block; margin-top: 15px; color: var(--ink); font-size: 11px; font-weight: 700; letter-spacing: .08em; }
-    .rsvp-name { width: 100%; margin-top: 8px; padding: 13px 14px; color: var(--ink); font-size: 15px; background: white; border: 1px solid rgba(16,34,56,.18); border-radius: 0; outline: none; }
-    .rsvp-name:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(0,91,172,.09); }
-    .rsvp-choices { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin-top: 8px; }
-    .rsvp-choice { min-height: 43px; color: var(--blue); background: white; border: 1px solid rgba(0,91,172,.24); }
-    .rsvp-choice.active { color: white; background: var(--blue); border-color: var(--blue); }
-    .guest-stepper { display: grid; grid-template-columns: 44px 1fr 44px; margin-top: 8px; border: 1px solid rgba(16,34,56,.18); }
-    .guest-stepper button { color: var(--blue); font-size: 20px; background: white; border: 0; }
-    .guest-stepper output { display: grid; place-items: center; min-height: 43px; font-family: var(--font-code); font-size: 18px; font-weight: 800; background: rgba(0,91,172,.05); border-left: 1px solid rgba(16,34,56,.12); border-right: 1px solid rgba(16,34,56,.12); }
-    .rsvp-submit { width: 100%; margin-top: 20px; padding: 14px; color: white; font-family: var(--font-title); font-size: 16px; letter-spacing: .1em; background: var(--pink); border: 0; box-shadow: 5px 5px 0 rgba(107,0,60,.18); }
-    .rsvp-status { min-height: 20px; margin: 12px 0 0; color: var(--blue); font-size: 11px; line-height: 1.7; text-align: center; }
-
-    .quick-bar { position: fixed; z-index: 100; left: 50%; bottom: 0; width: min(100%, 520px); display: grid; grid-template-columns: 1.15fr .85fr .85fr; padding: 8px max(10px, env(safe-area-inset-right)) calc(8px + env(safe-area-inset-bottom)) max(10px, env(safe-area-inset-left)); background: rgba(3,25,48,.96); border-top: 1px solid rgba(255,255,255,.16); backdrop-filter: blur(14px); transform: translateX(-50%); transition: transform .45s ease, opacity .35s ease; }
+    .quick-bar { position: fixed; z-index: 100; left: 50%; bottom: 0; width: min(100%, 520px); display: grid; grid-template-columns: 1fr 1fr; padding: 8px max(10px, env(safe-area-inset-right)) calc(8px + env(safe-area-inset-bottom)) max(10px, env(safe-area-inset-left)); background: rgba(3,25,48,.96); border-top: 1px solid rgba(255,255,255,.16); backdrop-filter: blur(14px); transform: translateX(-50%); transition: transform .45s ease, opacity .35s ease; }
     body.locked .quick-bar { opacity: 0; pointer-events: none; transform: translate(-50%, 120%); }
     .quick-bar a { display: flex; align-items: center; justify-content: center; min-height: 43px; color: white; font-size: 12px; text-decoration: none; border-right: 1px solid rgba(255,255,255,.14); }
     .quick-bar a:last-child { border-right: 0; color: #9edfff; }
     .quick-bar strong { display: block; margin-right: 7px; color: #fff; font-family: var(--font-code); font-size: 15px; }
-    #banquet, #location, #rsvp { scroll-margin-top: 16px; }
+    #banquet, #location { scroll-margin-top: 16px; }
 
     @media (max-width: 370px) {
       .map-actions { grid-template-columns: 1fr; }
@@ -817,26 +800,6 @@
           <p class="map-status" id="mapStatus" aria-live="polite">微信内直接打开；如定位不准，可复制地址后搜索</p>
         </div>
 
-        <div class="rsvp-card" id="rsvp">
-          <small>PLEASE REPLY</small>
-          <h3>赴宴回执</h3>
-          <p class="rsvp-intro">无需登录。填写后复制回执，再发给邓剑杨或邓丽欣即可。</p>
-          <label class="rsvp-label" for="guestName">您的称呼</label>
-          <input class="rsvp-name" id="guestName" type="text" maxlength="20" placeholder="例如：舅舅一家" autocomplete="name">
-          <span class="rsvp-label">赴宴意向</span>
-          <div class="rsvp-choices">
-            <button class="rsvp-choice active" type="button" data-attendance="欣然赴约">欣然赴约</button>
-            <button class="rsvp-choice" type="button" data-attendance="暂未确定">暂未确定</button>
-          </div>
-          <span class="rsvp-label">预计人数</span>
-          <div class="guest-stepper">
-            <button id="guestMinus" type="button" aria-label="减少人数">−</button>
-            <output id="guestCount" aria-live="polite">1 人</output>
-            <button id="guestPlus" type="button" aria-label="增加人数">＋</button>
-          </div>
-          <button class="rsvp-submit" id="copyReplyButton" type="button">生成并复制回执</button>
-          <p class="rsvp-status" id="rsvpStatus" aria-live="polite"></p>
-        </div>
       </div>
     </section>
 
@@ -854,7 +817,6 @@
 
   <nav class="quick-bar" aria-label="宴会快捷信息">
     <a href="#banquet"><strong>08·23</strong>18:00</a>
-    <a href="#rsvp">赴宴回执</a>
     <a href="https://uri.amap.com/search?keyword=%E6%98%8E%E5%9F%8E%E7%BE%8E%E9%A3%9F%E9%A6%86%20%E5%B9%BF%E4%B8%9C%E7%9C%81%E8%82%87%E5%BA%86%E5%B8%82%E6%80%80%E9%9B%86%E5%8E%BF%E6%80%80%E5%9F%8E%E9%95%87%E9%87%91%E9%BE%99%E4%B8%80%E8%B7%AF63%E5%8F%B7&city=441224&view=map&src=admission_invitation&callnative=0">高德导航</a>
   </nav>
 
@@ -966,24 +928,6 @@
       setTimeout(() => { copyAddressButton.textContent = '复制地址'; }, 1800);
     });
 
-    let attendance = '欣然赴约';
-    let guestCount = 1;
-    const guestCountOutput = document.getElementById('guestCount');
-    document.querySelectorAll('.rsvp-choice').forEach((button) => {
-      button.addEventListener('click', () => {
-        attendance = button.dataset.attendance;
-        document.querySelectorAll('.rsvp-choice').forEach((item) => item.classList.toggle('active', item === button));
-      });
-    });
-    function renderGuestCount() { guestCountOutput.textContent = `${guestCount} 人`; }
-    document.getElementById('guestMinus').addEventListener('click', () => { guestCount = Math.max(1, guestCount - 1); renderGuestCount(); });
-    document.getElementById('guestPlus').addEventListener('click', () => { guestCount = Math.min(20, guestCount + 1); renderGuestCount(); });
-    document.getElementById('copyReplyButton').addEventListener('click', async () => {
-      const name = document.getElementById('guestName').value.trim() || '亲友';
-      const reply = `升学宴赴宴回执\n称呼：${name}\n意向：${attendance}\n预计人数：${guestCount}人\n宴会：2026年8月23日18:00 · 明城美食馆`;
-      await copyText(reply);
-      document.getElementById('rsvpStatus').textContent = '回执已复制，请粘贴发送给邓剑杨或邓丽欣';
-    });
   </script>
 </body>
 </html>
