@@ -1,8 +1,16 @@
 const header = document.querySelector('.site-header');
 const menu = document.querySelector('#site-nav');
 const menuToggle = document.querySelector('.menu-toggle');
+const compactExperience = window.matchMedia('(max-width: 900px), (prefers-reduced-motion: reduce)').matches;
 
-window.addEventListener('scroll', () => header.classList.toggle('scrolled', window.scrollY > 40), { passive: true });
+let headerFrame = 0;
+window.addEventListener('scroll', () => {
+  if (headerFrame) return;
+  headerFrame = requestAnimationFrame(() => {
+    header.classList.toggle('scrolled', window.scrollY > 40);
+    headerFrame = 0;
+  });
+}, { passive: true });
 
 menuToggle.addEventListener('click', () => {
   const open = menu.classList.toggle('open');
@@ -14,15 +22,20 @@ menu.querySelectorAll('a').forEach(link => link.addEventListener('click', () => 
   menuToggle.setAttribute('aria-expanded', 'false');
 }));
 
-const revealObserver = new IntersectionObserver((entries) => {
-  entries.forEach(entry => {
-    if (entry.isIntersecting) {
-      entry.target.classList.add('in-view');
-      revealObserver.unobserve(entry.target);
-    }
-  });
-}, { threshold: 0.12 });
-document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+const revealItems = document.querySelectorAll('.reveal');
+if (compactExperience) {
+  revealItems.forEach(el => el.classList.add('in-view'));
+} else {
+  const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('in-view');
+        revealObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -6% 0px' });
+  revealItems.forEach(el => revealObserver.observe(el));
+}
 
 document.querySelectorAll('.filter-group button').forEach(button => {
   button.addEventListener('click', () => {
