@@ -595,6 +595,27 @@
       border: 1px solid rgba(255,255,255,.7);
       box-shadow: 6px 6px 0 rgba(3,29,55,.28);
     }
+    .map-actions { position: relative; z-index: 1; display: grid; grid-template-columns: 1fr auto; gap: 10px; margin-top: 19px; }
+    .map-actions .map-button { margin-top: 0; }
+    .map-copy {
+      appearance: none;
+      padding: 0 15px;
+      color: white;
+      font-family: var(--font-body);
+      font-size: 12px;
+      letter-spacing: .08em;
+      white-space: nowrap;
+      background: rgba(255,255,255,.1);
+      border: 1px solid rgba(255,255,255,.48);
+      box-shadow: 4px 4px 0 rgba(3,29,55,.22);
+    }
+    .map-copy:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0 rgba(3,29,55,.22); }
+    .map-status { position: relative; z-index: 1; min-height: 18px; margin-top: 10px !important; color: #ccefff !important; }
+
+    @media (max-width: 370px) {
+      .map-actions { grid-template-columns: 1fr; }
+      .map-copy { min-height: 43px; }
+    }
 
     .closing-copy { padding: 31px 19px 0; background: linear-gradient(180deg, rgba(2,21,40,.05), rgba(2,21,40,.68)); }
     .closing h2 { font-weight: 500; }
@@ -737,7 +758,7 @@
           <div class="event-row"><span class="event-label">日期</span><div class="event-value">2026年8月23日<small>星期日 · 农历七月十一</small></div></div>
           <div class="event-row"><span class="event-label">时间</span><div class="event-value">晚宴 18:00<small>建议提前少许到场</small></div></div>
           <div class="event-row"><span class="event-label">地点</span><div class="event-value">明城美食馆<small>广东省肇庆市怀集县怀城镇金龙一路63号</small></div></div>
-          <div class="event-row"><span class="event-label">诚邀</span><div class="event-value">邓剑杨<small>谨备喜宴 · 恭候光临</small></div></div>
+          <div class="event-row"><span class="event-label">诚邀</span><div class="event-value">父亲 邓剑杨 · 母亲 邓丽欣<small>谨备喜宴 · 恭候光临</small></div></div>
         </div>
 
         <div class="countdown-wrap">
@@ -754,10 +775,14 @@
           <small>DINNER LOCATION</small>
           <h3>明城美食馆</h3>
           <p>怀城镇金龙一路63号 · 全场恭候</p>
-          <a class="map-button" href="https://uri.amap.com/search?keyword=%E6%98%8E%E5%9F%8E%E7%BE%8E%E9%A3%9F%E9%A6%86%20%E5%B9%BF%E4%B8%9C%E7%9C%81%E8%82%87%E5%BA%86%E5%B8%82%E6%80%80%E9%9B%86%E5%8E%BF%E6%80%80%E5%9F%8E%E9%95%87%E9%87%91%E9%BE%99%E4%B8%80%E8%B7%AF63%E5%8F%B7&city=%E8%82%87%E5%BA%86&view=map" target="_blank" rel="noopener">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg>
-            一键导航至宴会地点
-          </a>
+          <div class="map-actions">
+            <a class="map-button" href="https://uri.amap.com/search?keyword=%E6%98%8E%E5%9F%8E%E7%BE%8E%E9%A3%9F%E9%A6%86%20%E5%B9%BF%E4%B8%9C%E7%9C%81%E8%82%87%E5%BA%86%E5%B8%82%E6%80%80%E9%9B%86%E5%8E%BF%E6%80%80%E5%9F%8E%E9%95%87%E9%87%91%E9%BE%99%E4%B8%80%E8%B7%AF63%E5%8F%B7&city=441224&view=map&src=admission_invitation&callnative=0">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg>
+              打开高德地图网页
+            </a>
+            <button class="map-copy" id="copyAddressButton" type="button">复制地址</button>
+          </div>
+          <p class="map-status" id="mapStatus" aria-live="polite">微信内直接打开；如定位不准，可复制地址后搜索</p>
         </div>
       </div>
     </section>
@@ -768,7 +793,7 @@
         <p class="closing-kicker">THE FUTURE IS BRIGHT</p>
         <h2>新程将启<br>山海可期</h2>
         <p class="closing-motto">博学笃行 · 德艺双馨</p>
-        <div class="closing-sign"><p>愿与您共叙温情<br>共享这份喜悦</p><strong>邓剑杨<br>敬邀</strong></div>
+        <div class="closing-sign"><p>愿与您共叙温情<br>共享这份喜悦</p><strong>父亲 · 邓剑杨<br>母亲 · 邓丽欣<br>敬邀</strong></div>
         <p class="music-credit">背景音乐：“Reunited” — Kevin MacLeod (incompetech.com)，依据 <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a> 使用。</p>
       </div>
     </section>
@@ -856,6 +881,27 @@
     }
     updateCountdown();
     setInterval(updateCountdown, 1000);
+
+    const copyAddressButton = document.getElementById('copyAddressButton');
+    const mapStatus = document.getElementById('mapStatus');
+    const banquetAddress = '广东省肇庆市怀集县怀城镇金龙一路63号 明城美食馆';
+    copyAddressButton.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(banquetAddress);
+      } catch {
+        const helper = document.createElement('textarea');
+        helper.value = banquetAddress;
+        helper.style.position = 'fixed';
+        helper.style.opacity = '0';
+        document.body.appendChild(helper);
+        helper.select();
+        document.execCommand('copy');
+        helper.remove();
+      }
+      copyAddressButton.textContent = '已复制';
+      mapStatus.textContent = '地址已复制，可粘贴到高德地图中搜索';
+      setTimeout(() => { copyAddressButton.textContent = '复制地址'; }, 1800);
+    });
   </script>
 </body>
 </html>
