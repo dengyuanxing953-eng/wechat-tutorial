@@ -49,6 +49,7 @@
       position: relative;
       width: min(100%, 520px);
       min-height: 100vh;
+      padding-bottom: 72px;
       margin: 0 auto;
       overflow: hidden;
       background: var(--paper);
@@ -196,15 +197,21 @@
     .invite-layout { position: relative; margin-top: 46px; }
     .invite-text { position: relative; z-index: 3; width: 82%; padding: 28px 24px; background: var(--white); box-shadow: 0 18px 45px rgba(6,38,67,.11); }
     .invite-text::before { content: ""; position: absolute; left: 0; top: 0; width: 7px; height: 100%; background: linear-gradient(var(--cyan) 0 25%, var(--pink) 25% 50%, var(--orange) 50% 75%, var(--green) 75%); }
-    .invite-text p { margin: 0; font-family: "Songti SC", SimSun, serif; font-size: 16px; line-height: 2.05; letter-spacing: .045em; }
+    .invite-text p { margin: 0; font-family: "Songti SC", SimSun, serif; font-size: 17px; line-height: 2.05; letter-spacing: .045em; }
     .invite-text strong { color: var(--blue); font-size: 20px; }
     .notice-peek { position: relative; width: 88%; margin: -12px 0 0 auto; padding: 8px; background: white; box-shadow: 0 18px 42px rgba(6,38,67,.13); transform: rotate(2.2deg); }
     .notice-peek img { width: 100%; }
     .notice-tape { position: absolute; top: -15px; right: 18%; width: 92px; height: 26px; background: rgba(243,151,0,.74); transform: rotate(-5deg); }
     .joy-sticker { position: absolute; z-index: 5; right: -6px; bottom: -22px; width: 77px; height: 77px; display: grid; place-items: center; color: white; font-family: "Songti SC", SimSun, serif; font-size: 22px; letter-spacing: .08em; background: var(--pink); border-radius: 50%; transform: rotate(9deg); box-shadow: 0 0 0 6px var(--paper), 0 0 0 7px var(--pink); }
+    .family-sign { display: block; margin-top: 20px; padding-top: 15px; color: var(--muted); font-family: var(--font-body); font-size: 12px; line-height: 1.8; border-top: 1px solid rgba(16,34,56,.13); }
+    .personal-note { position: relative; margin-top: 54px; padding: 30px 24px 26px; color: white; background: var(--navy); box-shadow: 9px 9px 0 var(--cyan); }
+    .personal-note::before { content: "“"; position: absolute; right: 16px; top: -16px; color: rgba(255,255,255,.12); font-family: Georgia, serif; font-size: 92px; line-height: 1; }
+    .personal-note small { display: block; color: #86d8ff; font-family: var(--font-code); font-size: 9px; letter-spacing: .22em; }
+    .personal-note p { position: relative; margin: 17px 0 0; font-family: var(--font-title); font-size: 17px; line-height: 2; letter-spacing: .04em; }
+    .personal-note strong { display: block; margin-top: 18px; color: #bcecff; font-size: 12px; font-weight: 500; text-align: right; letter-spacing: .15em; }
 
     .school {
-      padding: 88px 24px;
+      padding: 74px 24px;
       color: white;
       background:
         linear-gradient(rgba(2,28,53,.92), rgba(2,22,42,.97)),
@@ -218,7 +225,7 @@
     .motto-stage::after { content: "德艺"; position: absolute; right: -15px; bottom: -31px; font-family: "Songti SC", SimSun, serif; font-size: 92px; font-weight: 700; color: rgba(255,255,255,.07); }
     .motto-stage small { display: block; margin-bottom: 10px; color: #a6e1ff; font-size: 9px; letter-spacing: .26em; }
     .motto-stage strong { position: relative; z-index: 1; display: block; font-family: "Songti SC", SimSun, serif; font-size: 26px; letter-spacing: .1em; white-space: nowrap; }
-    .school-copy { margin: 30px 0 0; font-size: 14px; line-height: 2; color: rgba(255,255,255,.76); }
+    .school-copy { margin: 27px 0 0; font-size: 15px; line-height: 2; color: rgba(255,255,255,.8); }
     .school-line { display: grid; grid-template-columns: repeat(3, 1fr); margin-top: 30px; border-top: 1px solid rgba(255,255,255,.2); border-bottom: 1px solid rgba(255,255,255,.2); }
     .school-line div { padding: 18px 10px; border-right: 1px solid rgba(255,255,255,.2); }
     .school-line div:last-child { border: 0; }
@@ -227,7 +234,7 @@
     .source { display: inline-block; margin-top: 22px; color: #82d4fd; font-size: 9px; text-decoration: none; border-bottom: 1px solid rgba(130,212,253,.4); }
 
     .art {
-      padding: 90px 0 0;
+      padding: 74px 0 0;
       color: var(--ink);
       background: #fff;
     }
@@ -236,13 +243,13 @@
     .art-quote { margin: 34px 24px 0; font-family: "Songti SC", SimSun, serif; font-size: 27px; font-weight: 600; line-height: 1.5; letter-spacing: .08em; }
     .art-quote b { color: var(--pink); font-weight: 600; }
     .art-copy { margin: 23px 24px 36px; font-size: 14px; line-height: 1.95; color: #606a75; }
-    .filmstrip { position: relative; padding: 16px 0; background: var(--navy); }
+    .filmstrip { position: relative; margin-top: 34px; padding: 16px 0; background: var(--navy); }
     .filmstrip::before, .filmstrip::after { content: ""; position: absolute; left: 0; right: 0; height: 8px; background: repeating-linear-gradient(90deg, white 0 13px, transparent 13px 24px); opacity: .75; }
     .filmstrip::before { top: 4px; }
     .filmstrip::after { bottom: 4px; }
     .film-grid { display: grid; grid-template-columns: 1.2fr .8fr; gap: 5px; padding: 10px 6px; }
-    .film-grid figure { position: relative; margin: 0; height: 270px; overflow: hidden; }
-    .film-grid figure:last-child { height: 270px; }
+    .film-grid figure { position: relative; margin: 0; height: 205px; overflow: hidden; }
+    .film-grid figure:last-child { height: 205px; }
     .film-grid img { width: 100%; height: 100%; object-fit: cover; }
     .film-grid figcaption { position: absolute; left: 8px; bottom: 8px; padding: 5px 7px; color: white; font-size: 9px; letter-spacing: .08em; background: rgba(4,29,55,.78); }
     .major-poster { margin: 0; padding: 45px 24px 52px; color: white; background: var(--blue); }
@@ -612,6 +619,30 @@
     .map-copy:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0 rgba(3,29,55,.22); }
     .map-status { position: relative; z-index: 1; min-height: 18px; margin-top: 10px !important; color: #ccefff !important; }
 
+    .rsvp-card { position: relative; margin-top: 42px; padding: 27px 20px 23px; background: #fffdf8; border: 1px solid rgba(16,34,56,.14); box-shadow: 8px 8px 0 rgba(228,0,127,.1); }
+    .rsvp-card::before { content: "RSVP"; position: absolute; right: 14px; top: 10px; color: rgba(0,91,172,.08); font-family: var(--font-code); font-size: 44px; font-weight: 800; letter-spacing: -.04em; }
+    .rsvp-card > small { position: relative; display: block; color: var(--pink); font-family: var(--font-code); font-size: 9px; font-weight: 700; letter-spacing: .2em; }
+    .rsvp-card h3 { position: relative; margin: 9px 0 5px; font-family: var(--font-title); font-size: 25px; font-weight: 600; }
+    .rsvp-intro { margin: 0 0 20px; color: var(--muted); font-size: 12px; line-height: 1.8; }
+    .rsvp-label { display: block; margin-top: 15px; color: var(--ink); font-size: 11px; font-weight: 700; letter-spacing: .08em; }
+    .rsvp-name { width: 100%; margin-top: 8px; padding: 13px 14px; color: var(--ink); font-size: 15px; background: white; border: 1px solid rgba(16,34,56,.18); border-radius: 0; outline: none; }
+    .rsvp-name:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(0,91,172,.09); }
+    .rsvp-choices { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin-top: 8px; }
+    .rsvp-choice { min-height: 43px; color: var(--blue); background: white; border: 1px solid rgba(0,91,172,.24); }
+    .rsvp-choice.active { color: white; background: var(--blue); border-color: var(--blue); }
+    .guest-stepper { display: grid; grid-template-columns: 44px 1fr 44px; margin-top: 8px; border: 1px solid rgba(16,34,56,.18); }
+    .guest-stepper button { color: var(--blue); font-size: 20px; background: white; border: 0; }
+    .guest-stepper output { display: grid; place-items: center; min-height: 43px; font-family: var(--font-code); font-size: 18px; font-weight: 800; background: rgba(0,91,172,.05); border-left: 1px solid rgba(16,34,56,.12); border-right: 1px solid rgba(16,34,56,.12); }
+    .rsvp-submit { width: 100%; margin-top: 20px; padding: 14px; color: white; font-family: var(--font-title); font-size: 16px; letter-spacing: .1em; background: var(--pink); border: 0; box-shadow: 5px 5px 0 rgba(107,0,60,.18); }
+    .rsvp-status { min-height: 20px; margin: 12px 0 0; color: var(--blue); font-size: 11px; line-height: 1.7; text-align: center; }
+
+    .quick-bar { position: fixed; z-index: 100; left: 50%; bottom: 0; width: min(100%, 520px); display: grid; grid-template-columns: 1.15fr .85fr .85fr; padding: 8px max(10px, env(safe-area-inset-right)) calc(8px + env(safe-area-inset-bottom)) max(10px, env(safe-area-inset-left)); background: rgba(3,25,48,.96); border-top: 1px solid rgba(255,255,255,.16); backdrop-filter: blur(14px); transform: translateX(-50%); transition: transform .45s ease, opacity .35s ease; }
+    body.locked .quick-bar { opacity: 0; pointer-events: none; transform: translate(-50%, 120%); }
+    .quick-bar a { display: flex; align-items: center; justify-content: center; min-height: 43px; color: white; font-size: 12px; text-decoration: none; border-right: 1px solid rgba(255,255,255,.14); }
+    .quick-bar a:last-child { border-right: 0; color: #9edfff; }
+    .quick-bar strong { display: block; margin-right: 7px; color: #fff; font-family: var(--font-code); font-size: 15px; }
+    #banquet, #location, #rsvp { scroll-margin-top: 16px; }
+
     @media (max-width: 370px) {
       .map-actions { grid-template-columns: 1fr; }
       .map-copy { min-height: 43px; }
@@ -638,7 +669,7 @@
       .opening h1 { font-size: 48px; }
       .hero h2 { font-size: 53px; }
       .motto-stage strong { font-size: 23px; }
-      .film-grid figure, .film-grid figure:last-child { height: 235px; }
+      .film-grid figure, .film-grid figure:last-child { height: 190px; }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -703,12 +734,17 @@
         <h2 class="section-title">一纸喜报<br>一场相聚</h2>
         <p class="section-en">EVERY EFFORT FINDS ITS ECHO</p>
         <div class="invite-layout">
-          <div class="invite-text"><p>十年寒窗，今朝圆梦。<br><strong>邓媛静</strong>已被四川传媒学院录取，即将走进视觉传达设计的崭新世界。<br><br>为感谢亲朋好友一路以来的关爱与陪伴，特备喜宴，与您分享成长的喜悦。</p></div>
+          <div class="invite-text"><p>承蒙亲友一路关爱，爱女<strong>邓媛静</strong>已被四川传媒学院艺术设计与动画学院视觉传达设计专业录取。<br><br>我们怀着喜悦与感恩，谨备薄宴，诚邀您拨冗赴约，一同见证她人生新章的启程。<span class="family-sign">父亲 邓剑杨 · 母亲 邓丽欣<br>谨邀</span></p></div>
           <figure class="notice-peek">
             <span class="notice-tape"></span>
             <img src="assets/admission.jpg" alt="邓媛静的四川传媒学院录取通知书">
             <span class="joy-sticker">喜报</span>
           </figure>
+        </div>
+        <div class="personal-note">
+          <small>A NOTE FROM YUANJING</small>
+          <p>新的旅程就要开始了。谢谢你们一直见证我的成长，也期待在出发之前，和你们一起分享这份喜悦。</p>
+          <strong>—— 邓媛静</strong>
         </div>
       </div>
     </section>
@@ -720,8 +756,7 @@
         <p class="section-en">SICHUAN UNIVERSITY OF MEDIA AND COMMUNICATIONS</p>
         <div class="school-logo"><img src="assets/scmc-logo.png" alt="四川传媒学院校名与校徽"></div>
         <div class="motto-stage"><small>校训 · UNIVERSITY MOTTO</small><strong>博学笃行 · 德艺双馨</strong></div>
-        <p class="school-copy">四川传媒学院始建于1997年，坐落于四川成都。学校立足媒体融合，深化产教融合，推进艺术与科技融合，培养面向传媒行业与文化创意领域的应用型人才。</p>
-        <div class="school-line"><div><strong>1997</strong><span>学校始建</span></div><div><strong>成都</strong><span>主校区所在地</span></div><div><strong>传媒</strong><span>艺术 × 科技</span></div></div>
+        <p class="school-copy">四川传媒学院坐落于成都，注重传媒、艺术与科技融合。邓媛静将在这里开启视觉传达设计的本科旅程。</p>
         <a class="source" href="https://www.scmc.edu.cn/" target="_blank" rel="noopener">资料来源：四川传媒学院官网 ↗</a>
       </div>
     </section>
@@ -729,13 +764,10 @@
     <section class="art">
       <div class="reveal">
         <div class="art-head">
-          <p class="section-tag">03 / ART & DESIGN</p>
-          <h2 class="section-title">创意发生地</h2>
-          <p class="section-en">COLLEGE OF ART DESIGN & ANIMATION</p>
+          <p class="section-tag">03 / HER CHOSEN PATH</p>
+          <h2 class="section-title">她选择的方向</h2>
+          <p class="section-en">VISUAL COMMUNICATION DESIGN</p>
         </div>
-        <div class="art-logo"><img src="assets/art-logo.png" alt="四川传媒学院艺术设计与动画学院"></div>
-        <p class="art-quote">“智者创物，<br><b>学以致道</b>”</p>
-        <p class="art-copy">艺术设计与动画学院成立于2004年。视觉传达设计连接品牌、包装、书籍、广告、信息与综合媒体，在美学、技术和文化之间，让创意被看见。</p>
         <div class="filmstrip">
           <div class="film-grid">
             <figure><img src="assets/studio.jpg" alt="艺术实践课堂"><figcaption>艺术实践课堂</figcaption></figure>
@@ -747,7 +779,7 @@
       </div>
     </section>
 
-    <section class="celebrate">
+    <section class="celebrate" id="banquet">
       <span class="ribbon r1"></span><span class="ribbon r2"></span>
       <div class="reveal">
         <p class="section-tag">04 / SAVE THE DATE</p>
@@ -771,7 +803,7 @@
           </div>
         </div>
 
-        <div class="map-card">
+        <div class="map-card" id="location">
           <small>DINNER LOCATION</small>
           <h3>明城美食馆</h3>
           <p>怀城镇金龙一路63号 · 全场恭候</p>
@@ -783,6 +815,27 @@
             <button class="map-copy" id="copyAddressButton" type="button">复制地址</button>
           </div>
           <p class="map-status" id="mapStatus" aria-live="polite">微信内直接打开；如定位不准，可复制地址后搜索</p>
+        </div>
+
+        <div class="rsvp-card" id="rsvp">
+          <small>PLEASE REPLY</small>
+          <h3>赴宴回执</h3>
+          <p class="rsvp-intro">无需登录。填写后复制回执，再发给邓剑杨或邓丽欣即可。</p>
+          <label class="rsvp-label" for="guestName">您的称呼</label>
+          <input class="rsvp-name" id="guestName" type="text" maxlength="20" placeholder="例如：舅舅一家" autocomplete="name">
+          <span class="rsvp-label">赴宴意向</span>
+          <div class="rsvp-choices">
+            <button class="rsvp-choice active" type="button" data-attendance="欣然赴约">欣然赴约</button>
+            <button class="rsvp-choice" type="button" data-attendance="暂未确定">暂未确定</button>
+          </div>
+          <span class="rsvp-label">预计人数</span>
+          <div class="guest-stepper">
+            <button id="guestMinus" type="button" aria-label="减少人数">−</button>
+            <output id="guestCount" aria-live="polite">1 人</output>
+            <button id="guestPlus" type="button" aria-label="增加人数">＋</button>
+          </div>
+          <button class="rsvp-submit" id="copyReplyButton" type="button">生成并复制回执</button>
+          <p class="rsvp-status" id="rsvpStatus" aria-live="polite"></p>
         </div>
       </div>
     </section>
@@ -798,6 +851,12 @@
       </div>
     </section>
   </main>
+
+  <nav class="quick-bar" aria-label="宴会快捷信息">
+    <a href="#banquet"><strong>08·23</strong>18:00</a>
+    <a href="#rsvp">赴宴回执</a>
+    <a href="https://uri.amap.com/search?keyword=%E6%98%8E%E5%9F%8E%E7%BE%8E%E9%A3%9F%E9%A6%86%20%E5%B9%BF%E4%B8%9C%E7%9C%81%E8%82%87%E5%BA%86%E5%B8%82%E6%80%80%E9%9B%86%E5%8E%BF%E6%80%80%E5%9F%8E%E9%95%87%E9%87%91%E9%BE%99%E4%B8%80%E8%B7%AF63%E5%8F%B7&city=441224&view=map&src=admission_invitation&callnative=0">高德导航</a>
+  </nav>
 
   <script>
     const opening = document.getElementById('opening');
@@ -882,15 +941,12 @@
     updateCountdown();
     setInterval(updateCountdown, 1000);
 
-    const copyAddressButton = document.getElementById('copyAddressButton');
-    const mapStatus = document.getElementById('mapStatus');
-    const banquetAddress = '广东省肇庆市怀集县怀城镇金龙一路63号 明城美食馆';
-    copyAddressButton.addEventListener('click', async () => {
+    async function copyText(text) {
       try {
-        await navigator.clipboard.writeText(banquetAddress);
+        await navigator.clipboard.writeText(text);
       } catch {
         const helper = document.createElement('textarea');
-        helper.value = banquetAddress;
+        helper.value = text;
         helper.style.position = 'fixed';
         helper.style.opacity = '0';
         document.body.appendChild(helper);
@@ -898,9 +954,35 @@
         document.execCommand('copy');
         helper.remove();
       }
+    }
+
+    const copyAddressButton = document.getElementById('copyAddressButton');
+    const mapStatus = document.getElementById('mapStatus');
+    const banquetAddress = '广东省肇庆市怀集县怀城镇金龙一路63号 明城美食馆';
+    copyAddressButton.addEventListener('click', async () => {
+      await copyText(banquetAddress);
       copyAddressButton.textContent = '已复制';
       mapStatus.textContent = '地址已复制，可粘贴到高德地图中搜索';
       setTimeout(() => { copyAddressButton.textContent = '复制地址'; }, 1800);
+    });
+
+    let attendance = '欣然赴约';
+    let guestCount = 1;
+    const guestCountOutput = document.getElementById('guestCount');
+    document.querySelectorAll('.rsvp-choice').forEach((button) => {
+      button.addEventListener('click', () => {
+        attendance = button.dataset.attendance;
+        document.querySelectorAll('.rsvp-choice').forEach((item) => item.classList.toggle('active', item === button));
+      });
+    });
+    function renderGuestCount() { guestCountOutput.textContent = `${guestCount} 人`; }
+    document.getElementById('guestMinus').addEventListener('click', () => { guestCount = Math.max(1, guestCount - 1); renderGuestCount(); });
+    document.getElementById('guestPlus').addEventListener('click', () => { guestCount = Math.min(20, guestCount + 1); renderGuestCount(); });
+    document.getElementById('copyReplyButton').addEventListener('click', async () => {
+      const name = document.getElementById('guestName').value.trim() || '亲友';
+      const reply = `升学宴赴宴回执\n称呼：${name}\n意向：${attendance}\n预计人数：${guestCount}人\n宴会：2026年8月23日18:00 · 明城美食馆`;
+      await copyText(reply);
+      document.getElementById('rsvpStatus').textContent = '回执已复制，请粘贴发送给邓剑杨或邓丽欣';
     });
   </script>
 </body>
